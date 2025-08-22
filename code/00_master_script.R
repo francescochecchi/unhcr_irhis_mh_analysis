@@ -1,0 +1,76 @@
+#...............................................................................
+### +++++++ ANALYSIS OF UNHCR iRHIS MENTAL HEALTH CONSULTATION DATA ++++++++ ###
+#...............................................................................
+
+#...............................................................................
+## ------ R SCRIPT TO LOAD PACKAGES AND SOURCE OTHER ANALYSIS SCRIPTS  ------ ##
+#...............................................................................
+
+
+
+#...............................................................................
+### Preparatory steps
+#...............................................................................
+
+  #...................................      
+  ## Install or load required R packages
+  if (!"pacman" %in% rownames(installed.packages())){install.packages("pacman")}
+  
+    # Install or load packages from CRAN
+    pacman::p_load(
+      ggplot2,       # Visualise data
+      ggpubr,        # Arrange multiple plots into a single plot
+      ggrepel,       # Improve labelling of plots
+      gtools,        # Assist various programming tasks
+      lubridate,     # Work with dates and times
+      MASS,          # Implement various statistical methods
+      mgcv,          # Fit generalised additive models
+      readxl,        # Read Excel files
+      scales,        # Scale and format data for visualisation
+      sf,            # Work with shape files and maps
+      tidyverse,     # Tidyverse suite of packages
+      tmap,          # Produce maps and work with GIS data
+      viridis,       # Colour-blind palette
+      zoo)           # Compute running means
+
+
+  #...................................      
+  ## Starting setup
+
+    # Clean up from previous code / runs
+    rm(list=ls(all=TRUE) )
+  
+    # Set font for Windows or Mac
+    suppressWarnings(windowsFonts(Arial = windowsFont("Arial")))
+    suppressWarnings(par(family = "Arial"))
+
+    # Set working directory to where this file is stored
+    dir_path <- paste(dirname(rstudioapi::getActiveDocumentContext()$path  )
+      , "/", sep = "")
+    setwd(dir_path)
+    print( getwd() )
+    dir_path <- gsub("/code", "", dir_path)
+    suppressWarnings(dir.create(paste0(dir_path, "out")))
+    
+    # Initialise random numbers
+    set.seed(123)
+    
+    # Colour-blind palette for graphing
+      # general palette
+      palette_gen <- viridis(16)
+      show_col(palette_gen)
+          
+
+#...............................................................................
+### Sourcing dependent scripts
+#...............................................................................
+
+  #...................................      
+  ## Xxx
+  source(paste0(dir_path, "code/01_XXX.r") )
+          
+
+#...............................................................................  
+### ENDS
+#...............................................................................
+     

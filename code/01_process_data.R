@@ -34,6 +34,10 @@
     demog$female_5to17 <- demog$female_5to11 + demog$female_12to17
     demog$male_5to17 <- demog$male_5to11 + demog$male_12to17
 
+    # Unique sites
+    sites_demog <- unique(demog[which(demog$year >= 2024), c("country","site")])
+
+    
   #...................................      
   ## Read and clean population 2024-2025 dataset provided by UNHCR
 
@@ -44,6 +48,11 @@
     # Rename columns
     colnames(pop0405) <- c("region", "country", "site", "pop", "year")
     
+    # Unique sites
+    sites_pop0405 <- unique(pop0405[, c("country", "site")])
+    sites_pop0405 <- sites_pop0405[
+      order(sites_pop0405$country, sites_pop0405$site), ]
+
     
 #...............................................................................
 ### Reading, appending and cleaning consultations by cause data
@@ -78,8 +87,8 @@
       "country"] <- "Democratic Republic of the Congo"
     
     # Tabulate country and site
-    sites <- as.data.frame(table(mh[, c("country", "site")]))
-    colnames(sites) <- c("country", "site", "n_obs")
+    sites <- as.data.frame(table(mh[, c("region", "country", "site")]))
+    colnames(sites) <- c("region", "country", "site", "n_obs")
     sites <- subset(sites, n_obs > 0)
     sites <- sites[order(sites$country, sites$site), ]  
     
@@ -88,12 +97,13 @@
     x2 <- unique(sites_demog$country)
     x1[! x1 %in% x2]
  
+    # Restrict sites_demog to countries in mh dataset
+    sites_demog <- subset(sites_demog, country %in% unique(sites$country))
+    
   #...................................      
   ## Link site names with site names in demographic dataset
     
     # Check that sites all also appear in the demographic dataset
-    sites_demog <- unique(demog[which(demog$year >= 2024), c("country","site")])
-    sites_demog <- subset(sites_demog, country %in% x1)
     x <- sapply(sites$site, grepl, sites_demog$site)
     nomatch <- colSums(x)
     x <- apply(x, 2, which)
@@ -114,7 +124,7 @@
         "Mulongwe [Admin 3: POC]", NA, "Barahale [Admin 3: POC]", 
         "Helaweyn [Admin 3: POC]", "Kurmuk [Admin 3: POC]", NA, 
         "Ura [Admin 3: POC]", "Akre Camp [Admin 3: PRP]", 
-        "Domiz Camp [Admin 3: PRP]", "Domiz Camp [Admin 3: PRP]", NA, NA, NA, 
+        NA, NA, NA, NA, NA, 
         NA, NA, NA, NA, NA, NA, NA, NA, "Bashu 1 & 2 [Admin 3: POC]", NA, NA, 
         NA, "Ikyogem (Settlement ) [Admin 3: POC]", 
         "Okende (Settlement) [Admin 3: POC]", NA, NA, NA, "Kaya [Admin 3: POC]",
@@ -125,9 +135,9 @@
       )
     )
     
-    sites[which(sites$nomatch != 1), "site_demog"] <- x$site_demog  
+    sites[which(sites$nomatch != 1), "site_demog"] <- x$site_demog
+    sites$site_demog <- unlist(sites$site_demog)
     # NAs: could not be found or difficult to resolve
-    # Domiz 1 and 2 need to be combined in mh dataset
     # info on Gawilan, Kawergosk, Qushtapa (Iraq), Sayam Forage, Tillia (Niger), 
     # Al Kharaz, Basatine (Yemen), Tongogara (Zimbabwe) online
     # pop_type 'National' in mh shouldn't be matched to demog
@@ -137,15 +147,89 @@
   ## Link site names with site names in UNHCR-provided population dataset
         
     # Check whether all sites in the UNHCR population dataset appear on mh sites
-    sites_pop0405 <- unique(pop0405[, c("country", "site")])
-    sites_pop0405 <- sites_pop0405[
-      order(sites_pop0405$country, sites_pop0405$site), ]
     sites[which(! sites$site %in% sites_pop0405$site), c("country", "site")]
     
     # Set non-matching sites to NA (not present in UNHCR population dataset)
     sites$site_pop0405 <- sites$site
     sites[which(! sites$site %in% sites_pop0405$site), "site_pop0405"] <- NA
       
+
+  #...................................      
+  ## Categorise mental health conditions according to ICD-11
+    
+    # First-level category
+    icd <- data.frame(cause = unique(mh$cause))
+    icd$cat1 <- NA
+    icd[which(icd$cause %in% c("Epilepsy / seizures" )), 
+      "cat1"] <- "08A6x - Epilepsy or seizures"       
+    icd[which(icd$cause %in% c("Delirium", "Dementia", "Dementia or Delirium")), 
+      "cat1"] <- "06Dxx - Neurocognitive disorders"       
+    icd[which(icd$cause %in% c("Acute psychosis", "Chronic psychosis")), 
+      "cat1"] <- "06A2x - Schizophrenia or other primary psychotic disorders"
+    icd[which(icd$cause %in% c("Dissociative disorder")), 
+      "cat1"] <- "06B6x - Dissociative disorders"
+    icd[which(icd$cause %in% c("Developmental disorders", 
+      "Intellectual disability", 
+      "Intellectual disability and developmental disorders" )), 
+      "cat1"] <- "06A0x - Neurodevelopmental disorders"
+    icd[which(icd$cause %in% c("Alcohol-related disorders", 
+      "Substance use disorders related to opiate use", 
+      "Alcohol or other substance use disorder", 
+      "Other substance use disorders",
+      "Substance use disorders related to benzodiazepine or other prescription medication")), 
+      "cat1"] <- "06C4x - Disorders due to substance use"
+    icd[which(icd$cause %in% c("Bipolar disorders (Mania)", 
+      "Psychosis (including bipolar disorder)")), 
+      "cat1"] <- "06A6x - Bipolar or related disorders"       
+    icd[which(icd$cause %in% c(
+      "Moderate-severe forms of anxiety disorder and mixed presentations")), 
+      "cat1"] <- "06B0x - Anxiety or fear-related disorders"
+    icd[which(icd$cause %in% c("Posttraumatic stress disorder", "Acute Stress", 
+      "Grief")), 
+      "cat1"] <- "06B4x - Disorders specifically associated with stress"      
+    icd[which(icd$cause %in% c("Moderate-severe depression")), 
+      "cat1"] <- "06A7x - Depressive disorders"      
+    icd[which(icd$cause %in% c("Other moderate-severe emotional disorders", 
+      "Moderate-severe emotional disorder")), 
+      "cat1"] <- "06A8Z - Mood disorders, unspecified"      
+    icd[which(icd$cause %in% c("Medically unexplained somatic complaint")), 
+      "cat1"] <- "06C2x - Disorders of bodily distress or bodily experience"
+    icd[which(icd$cause %in% c("Other psychological complaint")), 
+      "cat1"] <- 
+      "06E8Z - Mental, behavioural or neurodevelopmental disorders, unspecified"
+    icd[which(icd$cause %in% c("Self-harm/suicide attempt")), 
+      "cat1"] <- "PD3Z - Intentional self-harm"
+    icd <- icd[order(icd$cat1, icd$cause), ]        
+  
+    # Second-level category
+    icd$cat2 <- NA
+    icd[which(icd$cat1 %in% 
+        c("06A2x - Schizophrenia or other primary psychotic disorders",
+          "06A6x - Bipolar or related disorders",
+          "06C2x - Disorders of bodily distress or bodily experience")), 
+      "cat2"] <- "Schizophrenia, bipolar and related disorders"
+    icd[which(icd$cat1 %in% 
+        c("06A7x - Depressive disorders", "06A8Z - Mood disorders, unspecified",
+          "06B0x - Anxiety or fear-related disorders")), 
+      "cat2"] <- "Anxiety, depression and other mood disorders"
+    icd[which(icd$cat1 %in% c("06C4x - Disorders due to substance use",
+      "PD3Z - Intentional self-harm")), 
+      "cat2"] <- "Substance abuse, self-harm"
+    icd[which(icd$cat1 %in% c("06A0x - Neurodevelopmental disorders",
+      "06Dxx - Neurocognitive disorders", 
+      "06E8Z - Mental, behavioural or neurodevelopmental disorders, unspecified"
+      )), 
+      "cat2"] <- "Neurodevelopmental and neurocognitive disorders"
+    icd[which(icd$cat1 %in% c("08A6x - Epilepsy or seizures")), 
+      "cat2"] <- "Epilepsy or seizures"
+    icd[which(icd$cat1 %in% c(
+      "06B4x - Disorders specifically associated with stress",
+      "06B6x - Dissociative disorders")), 
+      "cat2"] <- "PTSD and dissociative disorders"
+
+    # Apply categories to dataset
+    mh <- merge(mh, icd, by = "cause", all.x = T)
+              
     
   #...................................      
   ## Clean and reformat other variables
@@ -182,8 +266,10 @@
       # remove 3 refugee observations with missing sex
       mh <- subset(mh, (pt_type == "refugee" & ! is.na(sex)) | 
           pt_type == "national")
-    
+    table(mh$sex, useNA = "always")    
 
+    
+    
 #...............................................................................
 ### Reading, appending and cleaning consultation indicator data
 #...............................................................................
@@ -204,8 +290,14 @@
     clinics$mmyy <- lubridate::my(clinics$mmyy)
     
     # Remove implausible values
+    clinics$implausible <- "plausible"
+    clinics[which(clinics$fte_clinicians >= 35), "implausible"] <- 
+      "implausible FTEs"
     clinics[which(clinics$fte_clinicians >= 35), "fte_clinicians"] <- NA
+    clinics[which(clinics$days_open >= 75), "implausible"] <- 
+      "implausible days open"
     clinics[which(clinics$days_open >= 75), "days_open"] <- NA
+    cbind(table(clinics$implausible), prop.table(table(clinics$implausible)))
     
     # Aggregate to monthly data
     clinics <- aggregate(clinics[, c("fte_clinicians", "days_open")],
@@ -248,26 +340,208 @@
     sites[which(! sites$site %in% sites_cons$site), c("country", "site")]
       # yes
         
-    # Aggregate consultations for both sexes (since sex is not
-        # disaggregated in mh dataset and new cases are often not sex-specific)
+    # Aggregate national consultations for both sexes (since sex is not
+        # disaggregated in mh dataset)
+    cons[which(cons$pt_type == "national"), "sex"] <- "both"
     cons <- aggregate(cons[, c("n_cases", "n_cases_new", "n_cases_mh_new")], 
-      by = cons[, c("region", "country", "site", "mmyy", "pt_type")], 
+      by = cons[, c("region", "country", "site", "mmyy", "pt_type", "sex")], 
       sum, na.rm = T)
 
     # Add number of MH cases from mh dataset
     x <- aggregate(list(n_cases_mh = mh$n_cases), by = mh[, c("country", "site",
-      "mmyy", "pt_type")], FUN = sum, na.rm = T)
-    cons <- merge(cons, x, by = c("country", "site", "mmyy", "pt_type"),
+      "mmyy", "pt_type", "sex")], FUN = sum, na.rm = T)
+    cons <- merge(cons, x, by = c("country", "site", "mmyy", "pt_type", "sex"),
       all.x = T)
     
+    # Check completeness
+    for (i in grep("cases", colnames(cons), value = T)) {
+      print(paste0("completeness  of ", i))
+      print(table(is.na(cons[, i])))
+    }
+    
+    # Recode missing MH cases to 0 (assume there were no MH consultations)
+    cons[which(is.na(cons$n_cases_mh)), "n_cases_mh"] <- 0
+    
     # Eliminate implausible values
+    cons$implausible <- "plausible"
+    cons[which(cons$n_cases > 50000), "implausible"] <- 
+      "implausible number of cases"
     cons[which(cons$n_cases > 50000), "n_cases"] <- NA
+    cons[which(cons$n_cases_new > cons$n_cases), "implausible"] <- 
+      "new cases > total cases"
     cons[which(cons$n_cases_new > cons$n_cases), "n_cases_new"] <- NA
-    View(subset(cons, n_mh_cases_new/n_cases > 0.20))
-################
+    cons[which(cons$n_cases_mh_new > cons$n_cases_mh), "implausible"] <-
+      "new MH cases > total MH cases"
+    cons[which(cons$n_cases_mh_new > cons$n_cases_mh), "n_cases_mh_new"] <- NA
+    cons[which(cons$n_cases_mh > cons$n_cases), "implausible"] <- 
+      "MH cases > total cases"
+    cons[which(cons$n_cases_mh > cons$n_cases), "n_cases"] <- NA
+    cons[which((cons$n_cases_mh/cons$n_cases) > 0.50), "implausible"] <- 
+      "MH cases > 50% of total cases"
+    cons[which((cons$n_cases_mh/cons$n_cases) > 0.50), "n_cases"] <- NA
+    x <- table(cons$implausible, useNA = "always")
+    cbind(x, prop.table(x))    
     
+         
+#...............................................................................
+### Merging and aggregating different datasets
+#...............................................................................
     
-                    
+  #...................................      
+  ## Create aggregate versions of mh dataset
+    
+    # Rectangularise dataset
+    x <- expand.grid(
+      site = sort(sites$site),
+      mmyy = sort(unique(mh$mmyy)),
+      age = sort(unique(mh$age)),
+      sex = sort(unique(mh$sex)),
+      cat1 = sort(unique(mh$cat1))
+    )
+    x$pt_type <- ifelse(x$sex == "both", "national", "refugee")
+    x <- merge(x, sites[, c("region", "country", "site", "site_demog",
+      "site_pop0405")], by = "site", all.x = T)
+    x1 <- unique(icd[, c("cat1", "cat2")])
+    colnames(x1) <- c("cat1", "cat2")
+    x <- merge(x, x1, by = "cat1", all.x = T)
+    
+    # Aggregate by cat1
+    mh1 <- aggregate(list(n_cases = mh$n_cases), 
+      by = mh[, c("region", "country", "site", "mmyy", "cat1", 
+        "pt_type", "age", "sex")], FUN = "sum", na.rm = TRUE)
+    mh1 <- merge(x, mh1, by = c("region", "country", "site", "mmyy", "cat1",
+      "pt_type", "age", "sex"), all.x = T)
+    mh1[which(is.na(mh1$n_cases)), "n_cases"] <- 0
+    mh1 <- mh1[, c("region", "country", "site", "site_demog", "site_pop0405",
+      "mmyy", "pt_type", "cat1", "cat2", "age", "sex", "n_cases")]
+    
+    # Aggregate by cat2
+    mh2 <- aggregate(list(n_cases = mh1$n_cases), 
+      by = mh1[, c("region", "country", "site", "site_demog", "site_pop0405",
+        "mmyy", "pt_type", "cat2", "age", "sex")], FUN = "sum", na.rm = TRUE)
+    
+    # Aggregate by cat2 across all ages
+    mh2a <- aggregate(list(n_cases = mh2$n_cases), 
+      by = mh2[, c("region", "country", "site", "site_demog", "site_pop0405",
+        "mmyy", "pt_type", "cat2", "sex")], FUN = "sum", na.rm = TRUE)
+               
+    # Aggregate by cat2 across all ages and sexes
+    mh2b <- aggregate(list(n_cases = mh2a$n_cases), 
+      by = mh2a[, c("region", "country", "site", "site_demog", "site_pop0405",
+        "mmyy", "pt_type", "cat2")], FUN = "sum", na.rm = TRUE)
+    
+  #...................................      
+  ## Merge in clinics and cons datasets
+    
+    # Clinics
+    mh1 <- merge(mh1, clinics, by = c("country", "site", "mmyy"), all.x = T)
+    mh2 <- merge(mh2, clinics, by = c("country", "site", "mmyy"), all.x = T)
+    mh2a <- merge(mh2a, clinics, by = c("country", "site", "mmyy"), all.x = T)
+    mh2b <- merge(mh2b, clinics, by = c("country", "site", "mmyy"), all.x = T)
+    
+    # Consultations (only where appropriate)
+    colnames(cons) <- c("country", "site", "mmyy", "pt_type", "sex",
+      "region", "n_cases_all", "n_cases_new_all", "n_cases_mh_new",
+      "n_cases_mh", "implausible_cases")
+    mh2a <- merge(mh2a, cons, by = c("region", "country", "site", "mmyy", 
+      "pt_type", "sex"), all.x = T)    
+    x <- aggregate(cons[,c("n_cases_all", "n_cases_new_all", "n_cases_mh_new")],
+      by = cons[, c("region", "country", "site", "mmyy", "pt_type")], FUN = sum,
+      na.rm = T)
+    mh2b <- merge(mh2b, x, by = c("region", "country", "site", "mmyy", 
+      "pt_type"), all.x = T)    
+    
+  #...................................      
+  ## Merge in population datasets (where appropriate)
+  
+    # Population by age and sex (demog)
+      # subset
+      x <- subset(demog, country %in% unique(sites$country) & 
+          site %in% unique(sites$site_demog) & year %in% c(2024, 2025))
+      
+      # exclude sites where no population by age/sex is available
+      x <- x[-which(x$male_unknown > 0 | x$female_unknown > 0), ]
+      
+      # aggregate by site across all countries of origin
+        # (ok to combine all population types - have checked this)
+      cols_pop <- c(paste0("female_", c("0to4", "5to17", "18to59", "60+")),
+        paste0("male_", c("0to4", "5to17", "18to59", "60+")))
+      x <- aggregate(x[, cols_pop], by = x[, c("country", "country_iso",
+        "site", "year")], FUN = sum, na.rm = T)
+      
+      # check for site duplicates
+      table(duplicated(x[, c("country", "site", "year")]))
+      
+      # reshape long
+      x <- reshape(x, direction = "long", 
+        varying = which(colnames(x) %in% cols_pop), sep = "_",
+        idvar = c("country", "country_iso", "site", "year"), timevar = "age")
+      x <- reshape(x, direction = "long", varying = c("female", "male"),
+        idvar = c("country", "country_iso", "site", "year", "age"), 
+        timevar = "sex", times = c("female", "male"), v.names = "pop")        
+        
+      # rename columns and categories ahead of merging
+      colnames(x) <- c("country", "country_iso", "site_demog", "year", 
+        "age", "sex", "pop_demog")
+      x$age <- ifelse(x$age == "0to4", "0 to 4yrs", x$age)
+      x$age <- ifelse(x$age == "5to17", "5 to 17yrs", x$age)
+      x$age <- ifelse(x$age == "18to59", "18 to 59yrs", x$age)
+      x$age <- ifelse(x$age == "60+", "60+ yrs", x$age)
+      x$age <- factor(x$age, levels = levels(mh2$age))
+      x$sex <- factor(x$sex, levels = levels(mh2$sex))
+      
+      # merge where appropriate
+      mh1$year <- year(mh1$mmyy)
+      mh1 <- merge(mh1, x, by =c("country", "site_demog", "year", "age", "sex"),
+        all.x = T)
+      mh2$year <- year(mh2$mmyy)
+      mh2 <- merge(mh2, x, by =c("country", "site_demog", "year", "age", "sex"),
+        all.x = T)
+      x <- aggregate(list(pop_demog = x$pop_demog), 
+        by = x[, c("country", "country_iso", "site_demog", "year", "sex")], 
+        FUN = sum, na.rm = T)
+      mh2a$year <- year(mh2a$mmyy)
+      mh2a <- merge(mh2a, x, by =c("country", "site_demog", "year", "sex"),
+        all.x = T)
+      x <- aggregate(list(pop_demog = x$pop_demog), 
+        by = x[, c("country", "country_iso", "site_demog", "year")], 
+        FUN = sum, na.rm = T)
+      mh2b$year <- year(mh2b$mmyy)
+      mh2b <- merge(mh2b, x, by =c("country", "site_demog", "year"), all.x = T)
+
+    # Population provided by UNHCR
+    colnames(pop0405) <- c("region", "country", "site_pop0405", "pop_0405", 
+      "year")
+    mh1 <- merge(mh1, pop0405, by = c("region", "country", "site_pop0405", 
+      "year"), all.x = T)
+    mh2 <- merge(mh2, pop0405, by = c("region", "country", "site_pop0405", 
+      "year"), all.x = T)
+    mh2a <- merge(mh2a, pop0405, by = c("region", "country", "site_pop0405", 
+      "year"), all.x = T)
+    mh2b <- merge(mh2b, pop0405, by = c("region", "country", "site_pop0405", 
+      "year"), all.x = T)
+
+    # Compare two population sources
+    df <- unique(mh2b[, c("country", "country_iso", "site", "year", "pop_demog",
+      "pop_0405")])
+    p1 <- ggplot(df, aes(x = pop_demog, pop_0405)) +
+      geom_point(alpha = 0.50, fill = palette_gen[8], colour = palette_gen[12],
+        stroke = 1) +
+      theme_bw() +
+      scale_x_continuous("population size, 2024 (public dataset)", 
+        labels = comma) +
+      scale_y_continuous("population size, 2024 (private dataset)", 
+        labels = comma) +
+      geom_abline(slope = 1, intercept = c(0,0), colour = palette_gen[2],
+        linetype = c("22"))
+    ggsave(paste0(dir_path, "out/01_pop_sources_compared.png"), units = "cm",
+      dpi = "print", width = 15, height = 10)        
+    
+
+###### JUST USE POPDEMOG FOR AGE DISTR
+###### ADD OTHER VARIABLES FROM POPDEMOG
+    
+                                
 #...............................................................................  
 ### ENDS
 #...............................................................................

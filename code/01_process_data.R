@@ -417,18 +417,24 @@
     
     # Aggregate by cat2
     mh2 <- aggregate(list(n_cases = mh1$n_cases), 
-      by = mh1[, c("region", "country", "site", "site_demog", "site_pop0405",
+      by = mh1[, c("region", "country", "site",
         "mmyy", "pt_type", "cat2", "age", "sex")], FUN = "sum", na.rm = TRUE)
+    mh2 <- merge(mh2, sites[, c("region", "country", "site", "site_demog",
+      "site_pop0405")], by = c("region", "country", "site"), all.x = T)
     
     # Aggregate by cat2 across all ages
     mh2a <- aggregate(list(n_cases = mh2$n_cases), 
-      by = mh2[, c("region", "country", "site", "site_demog", "site_pop0405",
+      by = mh2[, c("region", "country", "site",
         "mmyy", "pt_type", "cat2", "sex")], FUN = "sum", na.rm = TRUE)
+    mh2a <- merge(mh2a, sites[, c("region", "country", "site", "site_demog",
+      "site_pop0405")], by = c("region", "country", "site"), all.x = T)
                
     # Aggregate by cat2 across all ages and sexes
     mh2b <- aggregate(list(n_cases = mh2a$n_cases), 
-      by = mh2a[, c("region", "country", "site", "site_demog", "site_pop0405",
+      by = mh2a[, c("region", "country", "site",
         "mmyy", "pt_type", "cat2")], FUN = "sum", na.rm = TRUE)
+    mh2b <- merge(mh2b, sites[, c("region", "country", "site", "site_demog",
+      "site_pop0405")], by = c("region", "country", "site"), all.x = T)
     
   #...................................      
   ## Merge in clinics and cons datasets
@@ -521,6 +527,10 @@
     mh2b <- merge(mh2b, pop0405, by = c("region", "country", "site_pop0405", 
       "year"), all.x = T)
 
+    
+  #...................................      
+  ## Reconcile the two population sources
+    
     # Compare two population sources
     df <- unique(mh2b[, c("country", "country_iso", "site", "year", "pop_demog",
       "pop_0405")])
@@ -537,10 +547,43 @@
     ggsave(paste0(dir_path, "out/01_pop_sources_compared.png"), units = "cm",
       dpi = "print", width = 15, height = 10)        
     
-
-###### JUST USE POPDEMOG FOR AGE DISTR
-###### ADD OTHER VARIABLES FROM POPDEMOG
+        # DECISION: since demog only available for 2024, and given differences, 
+            # use former only to construct age distributions
     
+    # Come up with age-sex distribution
+    agesex_dist <- 
+      unique(mh2[, c("country", "site", "year", "age", "sex", "pop_demog")])
+    agesex_dist <- agesex_dist[which(agesex_dist$year == 2024 
+      & ! is.na(agesex_dist$pop_demog)), ]
+    agesex_dist <- agesex_dist[order(agesex_dist$country, agesex_dist$site,
+      agesex_dist$sex, agesex_dist$age), ]
+    x <- by(agesex_dist, agesex_dist$site, 
+      function(xx) {xx$pop_demog / sum(xx$pop_demog)})
+    x <- do.call(rbind, x)
+    agesex_dist <- data.frame(row.names(x), x)
+    colnames(agesex_dist) <- c("site",
+      c(paste0("propfemale_", levels(mh2$age)),
+        paste0("propmale_", levels(mh2$age)))    
+    )
+    agesex_dist <- reshape(agesex_dist, direction = "long", 
+      varying = grep("prop", colnames(agesex_dist)), sep = "_",
+      idvar = "site", timevar = "age")
+    agesex_dist <- reshape(agesex_dist, direction = "long",
+      varying = c("propfemale", "propmale"), idvar = c("site", "age"),
+      timevar = "sex", times = c("female", "male"), v.names = "prop_agesex")
+    agesex_dist$age <- factor(agesex_dist$age, levels = levels(mh2$age))
+    agesex_dist$sex <- factor(agesex_dist$sex, levels = levels(mh2$sex))
+
+    # Come up with sex distribution
+    sex_dist <- aggregate(list(prop_sex = agesex_dist$prop_agesex),
+      by = agesex_dist[, c("site", "sex")], FUN = sum, na.rm= T)
+                    
+    # Merge into datasets
+    mh1 <- merge(mh1, agesex_dist, by = c("site", "age", "sex"), all.x = T)
+    mh2 <- merge(mh2, agesex_dist, by = c("site", "age", "sex"), all.x = T)
+    mh2a <- merge(mh2a, sex_dist, by = c("site", "sex"), all.x = T)
+
+
                                 
 #...............................................................................  
 ### ENDS

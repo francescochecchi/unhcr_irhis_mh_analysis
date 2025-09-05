@@ -310,4 +310,171 @@
         label = comma(n_cases_tot)), size = 4, colour = "white")
     ggsave(paste0(dir_path, "out/02_cat2_country_pt_type_alt.png"), 
       dpi = "print", units = "cm", width = 18, height = 18*1.414)
+
+    
+  #...................................      
+  ## Compare supra-categories by site (refugees only)
+    
+    # Prepare dataset
+    df <- subset(df, pt_type == "refugee")
+    df <- aggregate(list(n_cases = mh2$n_cases), 
+      by = mh2[, c("region", "country", "site", "cat2")], 
+      FUN = sum, na.rm = T)
+    x <- aggregate(list(n_cases_tot = df$n_cases), 
+      by = df[, c("country", "site")], FUN = sum, na.rm = T)
+    df <- merge(df, x, by = c("country", "site"), all.x = T)
+    df$prop <- df$n_cases / df$n_cases_tot
+    df$region <- sapply(strwrap(df$region, 15, simplify=F), paste, 
+        collapse = "\n" )
+    df[which(df$n_cases_tot < 10), "prop"] <- NA 
+      # exclude sites with <10 cases
+    labs_pl <- unique(df[, c("region", "country", "site", "n_cases_tot")])
+    labs_pl$cat2 <- "Epilepsy or seizures"
+    
+    # Plot
+    pl <- ggplot(df, aes(x = prop, y = site, fill = cat2)) +
+      geom_bar(alpha = 0.75, stat = "identity", position = "fill") +
+      scale_x_continuous("percentage of all consultations", labels = percent,
+        expand = expansion(mult = c(0.02, 0))) +
+      scale_y_discrete("site", limits = rev) +
+      scale_fill_viridis_d() +
+      theme_bw() +
+      theme(legend.position = "bottom", legend.title = element_blank(),
+        legend.text = element_text(size = 10), legend.justification = "right", 
+        panel.grid.major = element_blank(),
+        axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1),
+        plot.margin = margin(1, 0, 0, 0, unit = "cm"),
+        strip.text.y = element_text(angle = 0)) +
+      guides(fill = guide_legend(nrow = 3, reverse = T)) +
+      facet_nested(region + country ~ ., scales = "free_y", space = "free_y") +
+      geom_text(data = labs_pl, mapping = aes(x = -0.02, y = site, 
+        label = comma(n_cases_tot)), size = 3, colour = "grey20")
+    ggsave(paste0(dir_path, "out/02_cat2_site.png"), 
+      dpi = "print", units = "cm", width = 45, height = 45*1.414)
+
+
+#...............................................................................
+### Visualising consultation rates by geography
+#...............................................................................
+    
+  #...................................      
+  ## Compute consultation rates (per capita/year; refugees only)
+    
+    # MH consultation rates by age and sex, for each site
+    df <- subset(mh2, pt_type == "refugee")
+    df$pop_agesex <- df$pop_0405 * df$prop_agesex
+    df <- aggregate(df[, c("n_cases", "pop_agesex")], 
+      by = df[, c("region", "country", "site", "age", "sex")], 
+      FUN = sum, na.rm = T)
+    df$region <- sapply(strwrap(df$region, 15, simplify=F), paste, 
+        collapse = "\n" )    
+    mh2_cr_site <- df
+    mh2_cr_site$cons_rate <- mh2_cr_site$n_cases * 12 / mh2_cr_site$pop_agesex
+    mh2_cr_site[which(mh2_cr_site$cons_rate %in% c(NaN, Inf)), 
+      "cons_rate"] <-NA 
+    
+    # MH consultation rates by age and sex, for each country
+    df <- subset(df, ! is.na(pop_agesex) & pop_agesex > 0)
+    df <- aggregate(df[, c("n_cases", "pop_agesex")], 
+      by = df[, c("region", "country", "age", "sex")], FUN = sum, na.rm = T)
+    mh2_cr_country <- df
+    mh2_cr_country$cons_rate <- mh2_cr_country$n_cases * 12 / 
+      mh2_cr_country$pop_agesex
+    mh2_cr_country[which(mh2_cr_country$cons_rate %in% c(NaN, Inf)),
+      "cons_rate"] <-NA 
+
+    # MH and all-cause consultation rates (new / all), by sex, for each site
+    df <- subset(mh2a, pt_type == "refugee")
+    df$pop_sex <- df$pop_0405 * df$prop_sex
+    df <- aggregate(df[, c("n_cases_mh", "n_cases_mh_new", "n_cases_all",
+      "n_cases_new_all", "pop_sex")], 
+      by = df[, c("region", "country", "site", "sex")], FUN = sum, na.rm = T)
+    df$region <- sapply(strwrap(df$region, 15, simplify=F), paste, 
+        collapse = "\n" )    
+    mh2a_cr_site <- df
+    mh2a_cr_site$cons_rate_mh <- mh2a_cr_site$n_cases_mh * 12 / 
+      mh2a_cr_site$pop_sex
+    mh2a_cr_site$cons_rate_all <- mh2a_cr_site$n_cases_all * 12 / 
+      mh2a_cr_site$pop_sex
+    mh2a_cr_site[which(mh2a_cr_site$cons_rate_mh %in% c(NaN, Inf)),
+      "cons_rate_mh"] <-NA 
+    mh2a_cr_site[which(mh2a_cr_site$cons_rate_all %in% c(NaN, Inf)),
+      "cons_rate_all"] <-NA 
+
+    # MH and all-cause consultation rates (new / all), by sex, for each country
+    df <- subset(df, ! is.na(pop_sex) & pop_sex > 0)
+    df <- aggregate(df[, c("n_cases_mh", "n_cases_mh_new", "n_cases_all",
+      "n_cases_new_all", "pop_sex")], 
+      by = df[, c("region", "country", "sex")], FUN = sum, na.rm = T)
+    mh2a_cr_country <- df
+    mh2a_cr_country$cons_rate_mh <- mh2a_cr_country$n_cases_mh * 12 / 
+      mh2a_cr_country$pop_sex
+    mh2a_cr_country$cons_rate_all <- mh2a_cr_country$n_cases_all * 12 / 
+      mh2a_cr_country$pop_sex
+    mh2a_cr_country[which(mh2a_cr_country$cons_rate_mh %in% c(NaN, Inf)),
+      "cons_rate_mh"] <-NA 
+    mh2a_cr_country[which(mh2a_cr_country$cons_rate_all %in% c(NaN, Inf)),
+      "cons_rate_all"] <-NA 
         
+    # MH and all-cause consultation rates (new / all), for each site
+    df <- subset(mh2b, pt_type == "refugee")
+    df$pop <- df$pop_0405
+    df <- aggregate(df[, c("n_cases", "n_cases_mh_new", "n_cases_all",
+      "n_cases_new_all", "pop")], 
+      by = df[, c("region", "country", "site")], FUN = sum, na.rm = T)
+    df$region <- sapply(strwrap(df$region, 15, simplify=F), paste, 
+        collapse = "\n" )    
+    mh2b_cr_site <- df
+    mh2b_cr_site$cons_rate_mh <- mh2b_cr_site$n_cases * 12 / 
+      mh2b_cr_site$pop
+    mh2b_cr_site$cons_rate_all <- mh2b_cr_site$n_cases_all * 12 / 
+      mh2b_cr_site$pop
+    mh2a_cr_site[which(mh2a_cr_site$cons_rate_mh %in% c(NaN, Inf)),
+      "cons_rate_mh"] <-NA 
+    mh2a_cr_site[which(mh2a_cr_site$cons_rate_all %in% c(NaN, Inf)),
+      "cons_rate_all"] <-NA 
+
+    # MH and all-cause consultation rates (new / all), for each country
+    df <- subset(df, ! is.na(pop) & pop > 0)
+    df <- aggregate(df[, c("n_cases", "n_cases_mh_new", "n_cases_all",
+      "n_cases_new_all", "pop")], 
+      by = df[, c("region", "country")], FUN = sum, na.rm = T)
+    mh2b_cr_country <- df
+    mh2b_cr_country$cons_rate_mh <- mh2b_cr_country$n_cases * 12 / 
+      mh2b_cr_country$pop
+    mh2b_cr_country$cons_rate_all <- mh2b_cr_country$n_cases_all * 12 / 
+      mh2b_cr_country$pop
+    mh2b_cr_country[which(mh2b_cr_country$cons_rate_mh %in% c(NaN, Inf)),
+      "cons_rate_mh"] <-NA 
+    mh2b_cr_country[which(mh2b_cr_country$cons_rate_all %in% c(NaN, Inf)),
+      "cons_rate_all"] <-NA 
+    
+  #...................................      
+  ## Visualise age-sex consultation rates by site
+    
+    # Prepare dataset
+    df <- mh2_cr_site
+    x <- mh2_cr_country
+    x$cons_rate_country <- x$cons_rate
+    df <- merge(df, x[, c("region", "country", "age", "sex", 
+      "cons_rate_country")], by = c("region", "country", "age", "sex"), 
+      all.x = T)
+    df$region <- gsub("South East\nAsia", "SE\nAsia", df$region)
+    
+    # Plot
+    pl <- ggplot(df, aes(x = country, y = cons_rate, colour = region)) +
+      geom_point(alpha = 1, stroke = 0.5, shape = 1) +
+      geom_point(aes(y = cons_rate_country), 
+        alpha = 0.5, size = 5, shape = 95) +
+      scale_x_discrete("country") +
+      scale_y_continuous("mental health-related consultations per person-year",
+        trans = "sqrt", breaks = c(0.00, 0.05, 0.10, 0.20))+
+      scale_colour_viridis_d() +
+      theme_bw() +
+      theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1),
+        legend.position = "none", panel.grid.major.x = element_blank()) +
+      facet_nested(sex + age ~ region, scales = "free_x", space = "free_x")
+    ggsave(paste0(dir_path, "out/02_cr_site.png"), 
+      dpi = "print", units = "cm", width = 15, height = 15*1.414)
+    
+    

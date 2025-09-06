@@ -86,7 +86,7 @@
         axis.ticks.y = element_blank(), axis.text.x = element_text(size = 11,
           colour = "black"))
     ggsave(paste0(dir_path, "out/02_alluvial_causes.png"), dpi = "print",
-      units = "cm", width = 30, height = 30*1.414)
+      units = "cm", width = 30, height = 30*hw)
     
   #...................................      
   ## Tabulate data availability by country, pt_type, age and sex
@@ -166,6 +166,15 @@
     # Save
     write.csv(df, paste0(dir_path, "out/tab_avail.csv"), row.names = F)    
     
+    # How many health facilities?
+    hfs <- merge(hfs, unique(mh1[, c("country", "site")]), 
+      by = c("country", "site"), all.y = T)
+    length(unique(hfs$hf))
+    hfs$n_hf <- 1
+    df <- aggregate(list(n_hf = hfs$n_hf), by = hfs[, c("country", "site")],
+      FUN = sum, na.rm = T)
+    mean(df$n_hf)
+    range(df$n_hf)
     
 #...............................................................................
 ### Visualising patterns not related to geography (country / site)
@@ -191,8 +200,8 @@
         hjust = 1, vjust = 1), panel.grid.major.x = element_blank(),
         plot.margin = margin(0, 0, 0, 3.5, unit = "cm")) +
       facet_grid(age ~ sex)
-    ggsave(paste0(dir_path, "out/02_icd_age_sex.png"), dpi = "print",
-      units = "cm", width = 20, height = 20*1.414)
+    ggsave(paste0(dir_path, "out/02_cat1_age_sex.png"), dpi = "print",
+      units = "cm", width = 20, height = 20*hw)
    
     
   #...................................      
@@ -226,8 +235,8 @@
         hjust = 1, vjust = 1), panel.grid.major.x = element_blank(),
         plot.margin = margin(0, 0, 0, 3.7, unit = "cm")) +
       facet_grid(age ~ pt_type)
-    ggsave(paste0(dir_path, "out/02_icd_age_pt_type.png"), dpi = "print",
-      units = "cm", width = 20, height = 20*1.414)
+    ggsave(paste0(dir_path, "out/02_cat1_age_pt_type.png"), dpi = "print",
+      units = "cm", width = 20, height = 20*hw)
    
      
   #...................................      
@@ -251,7 +260,7 @@
         plot.margin = margin(0, 0, 0, 2.5, unit = "cm")) +
       facet_grid(age ~ sex)
     ggsave(paste0(dir_path, "out/02_cat2_age_sex.png"), dpi = "print",
-      units = "cm", width = 18, height = 18*1.414)
+      units = "cm", width = 18, height = 18*hw)
    
 
   #...................................      
@@ -286,7 +295,7 @@
         plot.margin = margin(0, 0, 0, 2.5, unit = "cm")) +
       facet_grid(age ~ pt_type)
     ggsave(paste0(dir_path, "out/02_cat2_age_pt_type.png"), dpi = "print",
-      units = "cm", width = 18, height = 18*1.414)
+      units = "cm", width = 18, height = 18*hw)
    
  
 #...............................................................................
@@ -319,8 +328,8 @@
         axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1),
         plot.margin = margin(0, 0, 0, 0, unit = "cm")) +
       facet_grid(region ~ ., scales = "free_y", space = "free_y")
-    ggsave(paste0(dir_path, "out/02_icd_country.png"), dpi = "print",
-      units = "cm", width = 18, height = 18*1.414)
+    ggsave(paste0(dir_path, "out/02_cat1_country.png"), dpi = "print",
+      units = "cm", width = 18, height = 18*hw)
     
     
   #...................................      
@@ -351,7 +360,7 @@
         plot.margin = margin(0, 0, 0, 0, unit = "cm")) +
       facet_grid(region ~ pt_type, scales = "free_y", space = "free_y")
     ggsave(paste0(dir_path, "out/02_cat2_country_pt_type.png"), dpi = "print",
-      units = "cm", width = 18, height = 18*1.414)
+      units = "cm", width = 18, height = 18*hw)
      
 
   #...................................      
@@ -390,7 +399,7 @@
       geom_text(data = labs_pl, mapping = aes(x = 0.50, y = country, 
         label = comma(n_cases_tot)), size = 4, colour = "white")
     ggsave(paste0(dir_path, "out/02_cat2_country_pt_type_alt.png"), 
-      dpi = "print", units = "cm", width = 18, height = 18*1.414)
+      dpi = "print", units = "cm", width = 18, height = 18*hw)
 
     
   #...................................      
@@ -431,7 +440,7 @@
       geom_text(data = labs_pl, mapping = aes(x = -0.02, y = site, 
         label = comma(n_cases_tot)), size = 3, colour = "grey20")
     ggsave(paste0(dir_path, "out/02_cat2_site.png"), 
-      dpi = "print", units = "cm", width = 45, height = 45*1.414)
+      dpi = "print", units = "cm", width = 45, height = 45*hw)
 
 
 #...............................................................................
@@ -516,6 +525,8 @@
       "cons_rate_all"] <-NA 
 
     # MH and all-cause consultation rates (new / all), for each country
+    df <- subset(mh2b, pt_type == "refugee")
+    df$pop <- df$pop_0405
     df <- subset(df, ! is.na(pop) & pop > 0)
     df <- aggregate(df[, c("n_cases", "n_cases_mh_new", "n_cases_all",
       "n_cases_new_all", "pop")], 
@@ -529,6 +540,9 @@
       "cons_rate_mh"] <-NA 
     mh2b_cr_country[which(mh2b_cr_country$cons_rate_all %in% c(NaN, Inf)),
       "cons_rate_all"] <-NA 
+    mh2b_cr_country$region <- sapply(strwrap(mh2b_cr_country$region, 
+      15, simplify=F), paste, collapse = "\n" )
+    
     
   #...................................      
   ## Visualise MH age-sex consultation rates by site and country
@@ -556,7 +570,7 @@
         legend.position = "none", panel.grid.major.x = element_blank()) +
       facet_nested(sex + age ~ region, scales = "free_x", space = "free_x")
     ggsave(paste0(dir_path, "out/02_cr_site.png"), 
-      dpi = "print", units = "cm", width = 15, height = 15*1.414)
+      dpi = "print", units = "cm", width = 15, height = 15*(hw-0.05))
     
 
   #...................................      
@@ -572,6 +586,8 @@
     df$region <- gsub("South East\nAsia", "SE\nAsia", df$region)
     df$percent_mh <- scales::label_percent(accuracy = 0.1)(df$cons_rate_mh / 
         df$cons_rate_all)
+    df$country <- as.character(df$country)
+    df$sex <- as.character(df$sex)
     
     # Plot
     pl <- ggplot(df, aes(x = country, y = cons_rate_mh, fill = region)) +
@@ -590,7 +606,7 @@
       geom_label(aes(label = percent_mh), size = 2, colour = "grey20",
         nudge_y = +0.2, fill = "white")
     ggsave(paste0(dir_path, "out/02_cr_country.png"), 
-      dpi = "print", units = "cm", width = 15, height = 15*1.414)
+      dpi = "print", units = "cm", width = 15, height = 15*(hw-0.05))
         
     
 #...............................................................................
@@ -641,7 +657,7 @@
       geom_label(aes(label = ratio, y = 0.05), size = 2, colour = "grey20",
         fill = "white", alpha = 1)
     ggsave(paste0(dir_path, "out/02_new_country_pt_type.png"), 
-      dpi = "print", units = "cm", width = 15, height = 15*1.414)
+      dpi = "print", units = "cm", width = 15, height = 15*(hw-0.05))
     
     
   #...................................      
@@ -690,7 +706,7 @@
       geom_label(aes(label = ratio, y = 0.05), size = 2, colour = "grey20",
         fill = "white", alpha = 1)
     ggsave(paste0(dir_path, "out/02_new_country_sex.png"), 
-      dpi = "print", units = "cm", width = 15, height = 15*1.414)
+      dpi = "print", units = "cm", width = 15, height = 15*(hw-0.05))
     
     
 #...............................................................................

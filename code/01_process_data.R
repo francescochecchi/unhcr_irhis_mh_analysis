@@ -47,12 +47,20 @@
     
     # Rename columns
     colnames(pop0405) <- c("region", "country", "site", "pop", "year")
+
+    # Rename countries that don't match with mh dataset
+    pop0405[which(pop0405$country == "Democratic Republic of the Congo (DRC)"),
+      "country"] <- "Democratic Republic of the Congo"
+    pop0405[which(pop0405$country == "Tanzania"),
+      "country"] <- "United Republic of Tanzania"
+    pop0405[which(pop0405$country == "Republic of the Congo"),
+      "country"] <- "Congo"
     
     # Unique sites
     sites_pop0405 <- unique(pop0405[, c("country", "site")])
     sites_pop0405 <- sites_pop0405[
       order(sites_pop0405$country, sites_pop0405$site), ]
-
+    
     
 #...............................................................................
 ### Reading, appending and cleaning consultations by cause data
@@ -285,7 +293,22 @@
     colnames(clinics) <- c("region", "country", "site", "hf", "mmyy", "epiweek",
       "fte_clinicians", "days_open")
     str(clinics)               
-      
+
+    # Rename countries that don't match with mh dataset
+    x <- unique(clinics$country)
+    x[which(! x %in% unique(mh$country))]
+    clinics[which(clinics$country == "Democratic Republic of the Congo (DRC)"),
+      "country"] <- "Democratic Republic of the Congo"
+    clinics[which(clinics$country == "Tanzania"),
+      "country"] <- "United Republic of Tanzania"
+    clinics[which(clinics$country == "Republic of the Congo"),
+      "country"] <- "Congo"
+        
+    # Identify health facilities
+    hfs <- unique(clinics[, c("country", "site", "hf")])
+    hfs <- merge(hfs, sites[, c("country", "site")], by = c("country", "site"), 
+      all.y = T)
+    
     # Reformat columns
     clinics$mmyy <- lubridate::my(clinics$mmyy)
     
@@ -315,16 +338,6 @@
       sites_clinics$site), ]
     sites[which(! sites$site %in% sites_clinics$site), c("country", "site")]
       # yes
-    
-    # Rename countries that don't match with mh dataset
-    x <- unique(clinics$country)
-    x[which(! x %in% unique(mh$country))]
-    clinics[which(clinics$country == "Democratic Republic of the Congo (DRC)"),
-      "country"] <- "Democratic Republic of the Congo"
-    clinics[which(clinics$country == "Tanzania"),
-      "country"] <- "United Republic of Tanzania"
-    clinics[which(clinics$country == "Republic of the Congo"),
-      "country"] <- "Congo"
     
     
   #...................................      
@@ -516,6 +529,8 @@
       x$age <- ifelse(x$age == "60+", "60+ yrs", x$age)
       x$age <- factor(x$age, levels = levels(mh2$age))
       x$sex <- factor(x$sex, levels = levels(mh2$sex))
+      x$country <- factor(x$country, levels = levels(mh1$country))   
+      x <- data.frame(x)
       
       # merge where appropriate
       mh1$year <- year(mh1$mmyy)

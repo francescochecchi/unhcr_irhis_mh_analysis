@@ -61,7 +61,10 @@
       # general palette
       palette_gen <- viridis(16)
       show_col(palette_gen)
-          
+       
+    # height to width ratio for figures (A4 format: should be 1.414, but
+      # leave some space for captions)
+    hw <- 1.3
 
 #...............................................................................
 ### Sourcing dependent scripts
@@ -71,7 +74,11 @@
   ## Pre-processing data
   source(paste0(dir_path, "code/01_process_data.r") )
 
-                
+  #...................................      
+  ## Visualising patterns
+  source(paste0(dir_path, "code/02_visualise_patterns.r") )
+
+                    
 
 #...............................................................................  
 ### ENDS

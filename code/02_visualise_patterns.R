@@ -7,9 +7,8 @@
 #...............................................................................
 
 
-
 #...............................................................................
-### Visualising patterns not related to geography (country / site)
+### Generating summary tables and figures
 #...............................................................................
 
   #...................................      
@@ -89,7 +88,89 @@
     ggsave(paste0(dir_path, "out/02_alluvial_causes.png"), dpi = "print",
       units = "cm", width = 30, height = 30*1.414)
     
+  #...................................      
+  ## Tabulate data availability by country, pt_type, age and sex
+        # include number of sites and months
+
+    # Prepare dataset
+    df <- mh2
+    df <- aggregate(list(n_cases = df$n_cases),
+      by = df[, c("region", "country", "pt_type", "sex", "age")], 
+      FUN = sum, na.rm = T)
+    df$agesex <- paste(df$sex, df$age, sep = "_")
+    x1 <- subset(df, pt_type == "refugee")
+    x1 <- reshape(x1, 
+      direction = "wide", timevar = "agesex",
+      idvar = c("region", "country"),
+      drop = c("age", "sex", "pt_type"))
+    colnames(x1) <- gsub("n_cases.", "", colnames(x1))
+    x2 <- subset(df, pt_type == "national")
+    x2 <- reshape(x2, 
+      direction = "wide", timevar = "agesex",
+      idvar = c("region", "country"),
+      drop = c("age", "sex", "pt_type"))  
+    colnames(x2) <- gsub("n_cases.both_", "", colnames(x2))
+    df <- merge(x1, x2, by = c("region", "country"), all.x = T)
+    df$female <- rowSums(df[, c("female_0 to 4yrs", "female_5 to 17yrs",
+      "female_18 to 59yrs", "female_60+ yrs")])
+    df$male <- rowSums(df[, c("male_0 to 4yrs", "male_5 to 17yrs",
+      "male_18 to 59yrs", "male_60+ yrs")])
+    df$tot_ref <- df$female + df$male
+    df$tot_nat <- rowSums(df[, c("0 to 4yrs", "5 to 17yrs",
+      "18 to 59yrs", "60+ yrs")])
+    df <- df[, c("region", "country", 
+      c("female_0 to 4yrs", "female_5 to 17yrs", 
+        "female_18 to 59yrs", "female_60+ yrs", "female"),
+      c("male_0 to 4yrs", "male_5 to 17yrs", 
+        "male_18 to 59yrs", "male_60+ yrs", "male"), "tot_ref",
+      c("0 to 4yrs", "5 to 17yrs", 
+        "18 to 59yrs", "60+ yrs"), "tot_nat"
+    )]  
+    x1 <- colnames(df)[! colnames(df) %in% c("region", "country")]
+    x <- colSums(df[, x1])
+    df$region <- as.character(df$region)
+    df$country <- as.character(df$country)
+    df <- rbind(df, c("all", "all", x))
+    for (i in x1) {df[, i] <- as.integer(df[, i])}
+    x <- df[which(df$region == "all"), 
+      c("female_0 to 4yrs", "female_5 to 17yrs", 
+        "female_18 to 59yrs", "female_60+ yrs", "female", "tot_ref")] / 
+      df[which(df$region == "all"), "tot_ref"]
+    x2 <- apply(x, 2, function(xx) {label_percent(accuracy = 0.1)(xx)})
+    x <- df[which(df$region == "all"), 
+      c("male_0 to 4yrs", "male_5 to 17yrs", 
+        "male_18 to 59yrs", "male_60+ yrs", "male", "tot_ref")] / 
+      df[which(df$region == "all"), "tot_ref"]
+    x <- apply(x, 2, function(xx) {label_percent(accuracy = 0.1)(xx)})
+    x2 <- c(x2, x)
+    x <- df[which(df$region == "all"), 
+      c("0 to 4yrs", "5 to 17yrs", 
+        "18 to 59yrs", "60+ yrs", "tot_nat")] / 
+      df[which(df$region == "all"), "tot_nat"]
+    x <- apply(x, 2, function(xx) {label_percent(accuracy = 0.1)(xx)})
+    x2 <- c(x2, x)
+    for (i in x1) {
+      df[, i] <- scales::label_comma()(df[, i])
+      x <- which(df$region == "all")
+      df[x, i] <- paste0(df[x, i], " (", x2[i], ")")
+    }
+    sites$n_sites <- 1
+    x <- aggregate(list(n_sites = sites$n_sites), by = sites[, c("region",
+      "country")], FUN = sum, na.rm = T)
+    df <- merge(df, x, by = c("region", "country"), all.x = T)
+    df$region <- factor(df$region, levels = c(levels(mh2$region), "all"))
+    df$country <- factor(df$country, levels = c(levels(mh2$country), "all"))
+    df <- df[order(df$region, df$country), c("region", "country", "n_sites",x1)]
+    df[which(df$region == "all"), "n_sites"] <- sum(na.omit(df$n_sites))
     
+    # Save
+    write.csv(df, paste0(dir_path, "out/tab_avail.csv"), row.names = F)    
+    
+    
+#...............................................................................
+### Visualising patterns not related to geography (country / site)
+#...............................................................................
+
   #...................................      
   ## Visualise ICD codes by age group and sex (refugees only)
     
@@ -539,6 +620,8 @@
       varying = c("ratio_mh", "ratio_all"), idvar = c("region", "country",
         "pt_type"), times = c("mh", "all"), timevar = "cause", v.names ="ratio")
     df$prop <- df$ratio / (df$ratio + 1)
+    df$region <- sapply(strwrap(df$region, 15, simplify=F), paste, 
+        collapse = "\n" )    
     df$region <- gsub("South East\nAsia", "SE\nAsia", df$region)    
     df$ratio <- scales::label_number(accuracy = 0.1)(df$ratio)
     df$cause <- ifelse(df$cause == "mh", "mental health-related", "all causes")
@@ -555,15 +638,62 @@
         legend.position = "none", panel.grid.major.x = element_blank()) +
       facet_nested(cause + pt_type ~ region, 
         scales = "free_x", space = "free_x") +
-      geom_label(aes(label = ratio, y = 0.2), size = 2, colour = "grey20",
-        nudge_y = + 0.2, fill = "white")
-    ggsave(paste0(dir_path, "out/02_new_country.png"), 
+      geom_label(aes(label = ratio, y = 0.05), size = 2, colour = "grey20",
+        fill = "white", alpha = 1)
+    ggsave(paste0(dir_path, "out/02_new_country_pt_type.png"), 
       dpi = "print", units = "cm", width = 15, height = 15*1.414)
     
     
   #...................................      
-  ## Visualise ratio of repeat to new consultations, by cause, sex/overall, 
-        # country (refugees only)
-        
+  ## Visualise ratio of repeat to new consultations, by sex and country
+        # (refugees only)
+
+    # Prepare dataset
+    df <- subset(mh2a, pt_type == "refugee")
+    df <- unique(df[, c("region", "country", "mmyy", "sex",
+      "n_cases_mh_new", "n_cases_all", "n_cases_new_all")])
+    df <- aggregate(df[, c("n_cases_mh_new", "n_cases_all", "n_cases_new_all")],
+      by = df[, c("region", "country", "sex")], FUN = sum, na.rm = T)
+    x <- subset(mh2a, pt_type == "refugee")
+    x <- aggregate(list(n_cases = x$n_cases),
+      by = x[, c("region", "country", "sex")], FUN = sum, na.rm = T)
+    df <- merge(df, x, by = c("region", "country", "sex"), all.x = T)
+    df$ratio_mh <- (df$n_cases - df$n_cases_mh_new) / df$n_cases_mh_new
+    df$ratio_all <- (df$n_cases_all - df$n_cases_new_all) / df$n_cases_new_all
+    df[which(df$n_cases < 10), "ratio_mh"] <- NA
+    df[which(df$n_cases_all < 10), "ratio_all"] <- NA
+    df[which(df$ratio_all %in% c(NaN, Inf)), "ratio_all"] <- NA
+    df[which(df$ratio_mh %in% c(NaN, Inf)), "ratio_mh"] <- NA
+    df <- reshape(df[, c("region", "country", "sex", 
+      "ratio_mh", "ratio_all")], direction = "long", 
+      varying = c("ratio_mh", "ratio_all"), idvar = c("region", "country",
+        "sex"), times = c("mh", "all"), timevar = "cause", v.names ="ratio")
+    df$prop <- df$ratio / (df$ratio + 1)
+    df$region <- sapply(strwrap(df$region, 15, simplify=F), paste, 
+        collapse = "\n" )    
+    df$region <- gsub("South East\nAsia", "SE\nAsia", df$region)    
+    df$ratio <- scales::label_number(accuracy = 0.1)(df$ratio)
+    df$cause <- ifelse(df$cause == "mh", "mental health-related", "all causes")
+    
+    # Plot        
+    pl <- ggplot(df, aes(x = country, y = prop, fill = region)) +
+      geom_bar(alpha = 0.75, stat = "identity", colour = "black") +
+      scale_x_discrete("country") +
+      scale_y_continuous("proportion of new consultations", 
+        expand = c(0, 0), breaks = seq(0, 1, 0.2), labels = percent) +
+      scale_fill_viridis_d() +
+      theme_bw() +
+      theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1),
+        legend.position = "none", panel.grid.major.x = element_blank()) +
+      facet_nested(cause + sex ~ region, 
+        scales = "free_x", space = "free_x") +
+      geom_label(aes(label = ratio, y = 0.05), size = 2, colour = "grey20",
+        fill = "white", alpha = 1)
+    ggsave(paste0(dir_path, "out/02_new_country_sex.png"), 
+      dpi = "print", units = "cm", width = 15, height = 15*1.414)
     
     
+#...............................................................................
+### ENDS
+#...............................................................................
+   

@@ -18,6 +18,8 @@
   
     # Install or load packages from CRAN
     pacman::p_load(
+      ggalluvial,    # Prepare an alluvial plot
+      ggh4x,         # For plots with nested facets      
       ggplot2,       # Visualise data
       ggpubr,        # Arrange multiple plots into a single plot
       ggrepel,       # Improve labelling of plots
@@ -66,9 +68,10 @@
 #...............................................................................
 
   #...................................      
-  ## Xxx
-  source(paste0(dir_path, "code/01_XXX.r") )
-          
+  ## Pre-processing data
+  source(paste0(dir_path, "code/01_process_data.r") )
+
+                
 
 #...............................................................................  
 ### ENDS

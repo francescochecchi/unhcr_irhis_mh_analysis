@@ -450,7 +450,7 @@
       "cons_rate_all"] <-NA 
     
   #...................................      
-  ## Visualise age-sex consultation rates by site
+  ## Visualise MH age-sex consultation rates by site and country
     
     # Prepare dataset
     df <- mh2_cr_site
@@ -464,8 +464,8 @@
     # Plot
     pl <- ggplot(df, aes(x = country, y = cons_rate, colour = region)) +
       geom_point(alpha = 1, stroke = 0.5, shape = 1) +
-      geom_point(aes(y = cons_rate_country), 
-        alpha = 0.5, size = 5, shape = 95) +
+      geom_point(aes(y = cons_rate_country), alpha = 0.5, size = 5, 
+        shape = 95) +
       scale_x_discrete("country") +
       scale_y_continuous("mental health-related consultations per person-year",
         trans = "sqrt", breaks = c(0.00, 0.05, 0.10, 0.20))+
@@ -476,5 +476,94 @@
       facet_nested(sex + age ~ region, scales = "free_x", space = "free_x")
     ggsave(paste0(dir_path, "out/02_cr_site.png"), 
       dpi = "print", units = "cm", width = 15, height = 15*1.414)
+    
+
+  #...................................      
+  ## Visualise MH/overall consultation rates by country, by sex and overall
+    
+    # Prepare dataset
+    df <- mh2a_cr_country
+    df <- df[, c("region", "country", "cons_rate_mh", "cons_rate_all", "sex")]
+    x <- mh2b_cr_country
+    x$sex <- "both sexes"
+    x <- x[, c("region", "country", "cons_rate_mh", "cons_rate_all", "sex")]
+    df <- rbind(df, x)
+    df$region <- gsub("South East\nAsia", "SE\nAsia", df$region)
+    df$percent_mh <- scales::label_percent(accuracy = 0.1)(df$cons_rate_mh / 
+        df$cons_rate_all)
+    
+    # Plot
+    pl <- ggplot(df, aes(x = country, y = cons_rate_mh, fill = region)) +
+      geom_bar(alpha = 1, stat = "identity", colour = "black") +
+      geom_bar(aes(y = cons_rate_all), alpha = 0.5, stat = "identity",
+        colour = "black") +
+      scale_x_discrete("country") +
+      scale_y_continuous("consultations per person-year", 
+        expand = c(0, 0),
+        trans = "sqrt", breaks = c(0.0, 0.1, 0.2, 0.5, 1, 2, 3, 4, 5))+
+      scale_fill_viridis_d() +
+      theme_bw() +
+      theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1),
+        legend.position = "none", panel.grid.major.x = element_blank()) +
+      facet_nested(sex ~ region, scales = "free_x", space = "free_x") +
+      geom_label(aes(label = percent_mh), size = 2, colour = "grey20",
+        nudge_y = +0.2, fill = "white")
+    ggsave(paste0(dir_path, "out/02_cr_country.png"), 
+      dpi = "print", units = "cm", width = 15, height = 15*1.414)
+        
+    
+#...............................................................................
+### Visualising new vs. all consultations by geography
+#...............................................................................
+    
+  #...................................      
+  ## Visualise ratio of repeat to new consultations, by cause (MH, all), 
+        # country, refugees vs nationals
+
+    # Prepare dataset
+    df <- unique(mh2b[, c("region", "country", "pt_type", "mmyy",
+      "n_cases_mh_new", "n_cases_all", "n_cases_new_all")])
+    df <- aggregate(df[, c("n_cases_mh_new", "n_cases_all", "n_cases_new_all")],
+      by = df[, c("region", "country", "pt_type")], FUN = sum, na.rm = T)
+    x <- aggregate(list(n_cases = mh2b$n_cases),
+      by = mh2b[, c("region", "country", "pt_type")], FUN = sum, na.rm = T)
+    df <- merge(df, x, by = c("region", "country", "pt_type"), all.x = T)
+    df$ratio_mh <- (df$n_cases - df$n_cases_mh_new) / df$n_cases_mh_new
+    df$ratio_all <- (df$n_cases_all - df$n_cases_new_all) / df$n_cases_new_all
+    df[which(df$n_cases < 10), "ratio_mh"] <- NA
+    df[which(df$n_cases_all < 10), "ratio_all"] <- NA
+    df[which(df$ratio_all %in% c(NaN, Inf)), "ratio_all"] <- NA
+    df[which(df$ratio_mh %in% c(NaN, Inf)), "ratio_mh"] <- NA
+    df <- reshape(df[, c("region", "country", "pt_type", 
+      "ratio_mh", "ratio_all")], direction = "long", 
+      varying = c("ratio_mh", "ratio_all"), idvar = c("region", "country",
+        "pt_type"), times = c("mh", "all"), timevar = "cause", v.names ="ratio")
+    df$prop <- df$ratio / (df$ratio + 1)
+    df$region <- gsub("South East\nAsia", "SE\nAsia", df$region)    
+    df$ratio <- scales::label_number(accuracy = 0.1)(df$ratio)
+    df$cause <- ifelse(df$cause == "mh", "mental health-related", "all causes")
+    
+    # Plot
+    pl <- ggplot(df, aes(x = country, y = prop, fill = region)) +
+      geom_bar(alpha = 0.75, stat = "identity", colour = "black") +
+      scale_x_discrete("country") +
+      scale_y_continuous("proportion of new consultations", 
+        expand = c(0, 0), breaks = seq(0, 1, 0.2), labels = percent) +
+      scale_fill_viridis_d() +
+      theme_bw() +
+      theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1),
+        legend.position = "none", panel.grid.major.x = element_blank()) +
+      facet_nested(cause + pt_type ~ region, 
+        scales = "free_x", space = "free_x") +
+      geom_label(aes(label = ratio, y = 0.2), size = 2, colour = "grey20",
+        nudge_y = + 0.2, fill = "white")
+    ggsave(paste0(dir_path, "out/02_new_country.png"), 
+      dpi = "print", units = "cm", width = 15, height = 15*1.414)
+    
+    
+  #...................................      
+  ## Visualise ratio of repeat to new consultations, by cause, sex/overall, 
+        # country (refugees only)
+        
     
     

@@ -316,6 +316,17 @@
     sites[which(! sites$site %in% sites_clinics$site), c("country", "site")]
       # yes
     
+    # Rename countries that don't match with mh dataset
+    x <- unique(clinics$country)
+    x[which(! x %in% unique(mh$country))]
+    clinics[which(clinics$country == "Democratic Republic of the Congo (DRC)"),
+      "country"] <- "Democratic Republic of the Congo"
+    clinics[which(clinics$country == "Tanzania"),
+      "country"] <- "United Republic of Tanzania"
+    clinics[which(clinics$country == "Republic of the Congo"),
+      "country"] <- "Congo"
+    
+    
   #...................................      
   ## Read and clean consultation tally data
     
@@ -382,7 +393,17 @@
     x <- table(cons$implausible, useNA = "always")
     cbind(x, prop.table(x))    
     
-         
+    # Rename countries that don't match with mh dataset
+    x <- unique(cons$country)
+    x[which(! x %in% unique(mh$country))]
+    cons[which(cons$country == "Democratic Republic of the Congo (DRC)"),
+      "country"] <- "Democratic Republic of the Congo"
+    cons[which(cons$country == "Tanzania"),
+      "country"] <- "United Republic of Tanzania"
+    cons[which(cons$country == "Republic of the Congo"),
+      "country"] <- "Congo"
+    
+             
 #...............................................................................
 ### Merging and aggregating different datasets
 #...............................................................................

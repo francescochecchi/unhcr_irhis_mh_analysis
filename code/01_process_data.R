@@ -471,15 +471,9 @@
       "site_pop0405")], by = c("region", "country", "site"), all.x = T)
     
   #...................................      
-  ## Merge in clinics and cons datasets
-    
-    # Clinics
-    mh1 <- merge(mh1, clinics, by = c("country", "site", "mmyy"), all.x = T)
-    mh2 <- merge(mh2, clinics, by = c("country", "site", "mmyy"), all.x = T)
-    mh2a <- merge(mh2a, clinics, by = c("country", "site", "mmyy"), all.x = T)
-    mh2b <- merge(mh2b, clinics, by = c("country", "site", "mmyy"), all.x = T)
-    
-    # Consultations (only where appropriate)
+  ## Merge in consultations dataset
+           
+    # Merge (only where appropriate)
     colnames(cons) <- c("country", "site", "mmyy", "pt_type", "sex",
       "region", "n_cases_all", "n_cases_new_all", "n_cases_mh_new",
       "n_cases_mh", "implausible_cases")
@@ -490,7 +484,44 @@
       na.rm = T)
     mh2b <- merge(mh2b, x, by = c("region", "country", "site", "mmyy", 
       "pt_type"), all.x = T)    
+
+  #...................................      
+  ## Merge in clinics dataset
     
+    # Merge
+    mh1 <- merge(mh1, clinics, by = c("country", "site", "mmyy"), all.x = T)
+    mh2 <- merge(mh2, clinics, by = c("country", "site", "mmyy"), all.x = T)
+    mh2a <- merge(mh2a, clinics, by = c("country", "site", "mmyy"), all.x = T)
+    mh2b <- merge(mh2b, clinics, by = c("country", "site", "mmyy"), all.x = T)
+ 
+    # Exclude implausible clinics data
+    for (i in c("mh1", "mh2", "mh2a", "mh2b")) {
+      
+      # get the dataframe    
+      df <- get(i)
+      
+      # determine plausibility of days open
+      df$days_open_implausible <- "plausible"
+      df[which(is.na(df$days_open)), "days_open_implausible"] <- "missing"
+      x <- which(df$days_open == 0 & df$n_cases_all > 0)
+      df[x, "days_open_implausible"] <- 
+        "implausible - zero days open but cases (all causes) > 0"
+      df[x, "days_open"] <- NA
+
+      # determine plausibility of FTE clinicians
+      df$fte_clinicians_implausible <- "plausible"
+      df[which(is.na(df$fte_clinicians)), "fte_clinicians_implausible"] <- 
+        "missing"
+      x <- which(df$fte_clinicians == 0 & df$n_cases_all > 0)
+      df[x, "fte_clinicians_implausible"] <- 
+        "implausible - zero clinician FTEs but cases (all causes) > 0"
+      df[x, "fte_clinicians"] <- NA
+      
+      # reassign dataframe
+      assign(i, df)
+    }
+
+        
   #...................................      
   ## Merge in population datasets (where appropriate)
   

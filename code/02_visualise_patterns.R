@@ -598,14 +598,14 @@
       scale_x_discrete("country") +
       scale_y_continuous("consultations per 100 person-years", 
         expand = c(0, 0),
-        trans = "sqrt", breaks = c(0, 10, 20, 50, 100, 200, 300, 400, 500))+
+        trans = "sqrt", breaks = c(0, 2, 10, 20, 50, 100, 200, 300, 400, 500)) +
       scale_fill_viridis_d() +
       theme_bw() +
       theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1),
         legend.position = "none", panel.grid.major.x = element_blank()) +
       facet_nested(sex ~ region, scales = "free_x", space = "free_x") +
-      geom_label(aes(label = percent_mh), size = 2, colour = "grey20",
-        nudge_y = +0.2, fill = "white")
+      geom_label(aes(label = percent_mh, y = 10), size = 2, colour = "grey20",
+        fill = "white", alpha = 0.75)
     ggsave(paste0(dir_path, "out/02_cr_country.png"), 
       dpi = "print", units = "cm", width = 15, height = 15*(hw-0.05))
         

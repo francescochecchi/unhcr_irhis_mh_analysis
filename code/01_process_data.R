@@ -649,8 +649,64 @@
     mh2 <- merge(mh2, agesex_dist, by = c("site", "age", "sex"), all.x = T)
     mh2a <- merge(mh2a, sex_dist, by = c("site", "sex"), all.x = T)
 
+  #...................................      
+  ## Fix missing country ISO codes
 
-                                
+    # Corrected dataset of country ISO codes
+    x <- unique(mh1[which(! is.na(mh1$country_iso)), 
+      c("country", "country_iso")])
+    x <- merge(data.frame(country = unique(mh1$country)), x, by = "country",
+      all.x =T)
+    x[which(x$country == "Congo"), "country_iso"] <- "COG"
+    x[which(x$country == "Zimbabwe"), "country_iso"] <- "ZWE"    
+    
+    # Merge into mh datasets
+    for (i in c("mh1", "mh2", "mh2a", "mh2b")) {
+      df <- get(i)
+      df <- df[, colnames(df) != "country_iso"]
+      df <- merge(df, x, by = "country", all.x = T)
+      assign(i, df)
+    }
+
+    
+#...............................................................................
+### Reading and merging WHO Global Health Observatory mental health data
+#...............................................................................
+
+  #...................................      
+  ## Read and clean WHO data, choosing most recent value if multiple
+    
+    # Psychiatrists
+    who_psych <- read.csv(paste0(dir_path, "in/who_mh_psychiatrists.csv"))
+    who_psych <- who_psych[, c("SpatialDimensionValueCode", "TimeDim", "Value")]
+    colnames(who_psych) <- c("country_iso", "year_psych", "n_psych")
+    
+    # MH-related consultations
+    who_cons <- read.csv(paste0(dir_path, "in/who_mh_consultations.csv"))
+    who_cons <- who_cons[, c("SpatialDimValueCode", "Period", 
+      "FactValueNumeric")]
+    colnames(who_cons) <- c("country_iso", "year_cons", "cons_rate_mh_natl")
+    
+    # MH expenditure out of entire health expenditure
+    who_exp <- read.csv(paste0(dir_path, "in/who_mh_expenditure.csv"))
+    who_exp <- who_exp[, c("SpatialDimensionValueCode", "TimeDim", "Value")]
+    colnames(who_exp) <- c("country_iso", "year_exp", "exp_mh")
+    
+  #...................................      
+  ## Merge WHO datasets
+    
+    # Merge
+    who <- merge(who_cons, who_exp, by = "country_iso", all = T)
+    who <- merge(who, who_psych, by = "country_iso", all = T)    
+    
+    # Reformat
+    who$cons_rate_mh_natl <- who$cons_rate_mh_natl / 1000
+    who$exp_mh <- who$exp_mh / 100
+    
+    # Select only countries in mh dataset
+    x <- unique(mh1$country_iso)
+    who <- subset(who, country_iso %in% x)
+        
 #...............................................................................  
 ### ENDS
 #...............................................................................

@@ -18,12 +18,15 @@
   
     # Install or load packages from CRAN
     pacman::p_load(
+      DHARMa,        # Model diagnostics
       ggalluvial,    # Prepare an alluvial plot
       ggh4x,         # For plots with nested facets      
       ggplot2,       # Visualise data
       ggpubr,        # Arrange multiple plots into a single plot
       ggrepel,       # Improve labelling of plots
+      glmmTMB,       # Fit mixed models
       gtools,        # Assist various programming tasks
+      lme4,          # Fit mixed models
       lubridate,     # Work with dates and times
       MASS,          # Implement various statistical methods
       mgcv,          # Fit generalised additive models

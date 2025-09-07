@@ -608,7 +608,54 @@
         fill = "white", alpha = 0.75)
     ggsave(paste0(dir_path, "out/02_cr_country.png"), 
       dpi = "print", units = "cm", width = 15, height = 15*(hw-0.05))
-        
+
+  #...................................      
+  ## Compare consultations rates for refugees and throughout the host country
+    
+    # Prepare dataset
+    df <- mh2b_cr_country
+    x <- unique(mh1[, c("country", "country_iso")])            
+    df <- merge(df, x, by = "country", all.x = T)
+    df <- merge(df, who[, c("country_iso", "cons_rate_mh_natl")], 
+      by = "country_iso")
+    df <- df[, c("region", "country", "cons_rate_mh", "cons_rate_mh_natl")]
+    df <- reshape(df, direction = "long", varying = 
+      c("cons_rate_mh", "cons_rate_mh_natl"), idvar = c("region", "country"),
+      timevar = "population", 
+      times = c("refugees (2024-2025)", "host country (2014)"),
+      v.names = "cons_rate"
+    )
+    df$missing_lab <- ifelse(is.na(df$cons_rate), "n/a", NA)
+    df$cons_rate_lab <- label_number(accuracy = 0.1)(df$cons_rate)
+    df[which(is.na(df$cons_rate_lab)), "cons_rate_lab"] <- "*"
+    df$cons_rate_lab_y <- ifelse(is.na(df$cons_rate), 0.005, 
+      0.05 + df$cons_rate * 1.1)
+    
+    # Plot
+    pl <- ggplot(df, aes(x = country, y = cons_rate, fill = region, 
+      alpha = population, group = population)) +
+      geom_bar(colour = "black", stat = "identity", 
+        position = position_dodge2(width = 0.75)) +
+      scale_x_discrete("country") +
+      scale_y_continuous(
+        "mental health-related consultations per 100 person-years",
+        trans = "sqrt", breaks = c(0, 0.1, 0.2, 0.5, 1, 2, 5), 
+        expand = expansion(add = c(0,0.1)))+
+      scale_fill_viridis_d() +
+      scale_alpha_discrete() +
+      theme_bw() +
+      guides(fill = "none") +
+      labs(tag = "* host country value unavailable") +      
+      theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1),
+        legend.position = "top", panel.grid.major.x = element_blank(),
+        plot.tag.position = "bottomright", plot.tag.location = "plot",
+        plot.tag = element_text(size = 10)) +
+      facet_nested(. ~ region, scales = "free_x", space = "free_x") +
+      geom_text(aes(label = cons_rate_lab, y = cons_rate_lab_y), size = 2.5, 
+        alpha = 1, position = position_dodge2(width = 0.95))
+    ggsave(paste0(dir_path, "out/02_cr_refugees_vs_host_country.png"), 
+      dpi = "print", units = "cm", width = 20, height = 10*(hw-0.05))
+      
     
 #...............................................................................
 ### Visualising new vs. all consultations by geography

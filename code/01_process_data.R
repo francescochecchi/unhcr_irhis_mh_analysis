@@ -576,7 +576,7 @@
       theme_bw() +
       scale_x_continuous("population size, 2024 (public dataset)", 
         labels = comma) +
-      scale_y_continuous("population size, 2024 (private dataset)", 
+      scale_y_continuous("population size, 2024 (unpublished dataset)", 
         labels = comma) +
       geom_abline(slope = 1, intercept = c(0,0), colour = palette_gen[2],
         linetype = c("22"))

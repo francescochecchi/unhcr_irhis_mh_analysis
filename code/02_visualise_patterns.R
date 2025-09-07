@@ -459,7 +459,7 @@
     df$region <- sapply(strwrap(df$region, 15, simplify=F), paste, 
         collapse = "\n" )    
     mh2_cr_site <- df
-    mh2_cr_site$cons_rate <- mh2_cr_site$n_cases * 12 / mh2_cr_site$pop_agesex
+    mh2_cr_site$cons_rate <- mh2_cr_site$n_cases * 1200 / mh2_cr_site$pop_agesex
     mh2_cr_site[which(mh2_cr_site$cons_rate %in% c(NaN, Inf)), 
       "cons_rate"] <-NA 
     
@@ -468,7 +468,7 @@
     df <- aggregate(df[, c("n_cases", "pop_agesex")], 
       by = df[, c("region", "country", "age", "sex")], FUN = sum, na.rm = T)
     mh2_cr_country <- df
-    mh2_cr_country$cons_rate <- mh2_cr_country$n_cases * 12 / 
+    mh2_cr_country$cons_rate <- mh2_cr_country$n_cases * 1200 / 
       mh2_cr_country$pop_agesex
     mh2_cr_country[which(mh2_cr_country$cons_rate %in% c(NaN, Inf)),
       "cons_rate"] <-NA 
@@ -476,15 +476,15 @@
     # MH and all-cause consultation rates (new / all), by sex, for each site
     df <- subset(mh2a, pt_type == "refugee")
     df$pop_sex <- df$pop_0405 * df$prop_sex
-    df <- aggregate(df[, c("n_cases_mh", "n_cases_mh_new", "n_cases_all",
+    df <- aggregate(df[, c("n_cases", "n_cases_mh_new", "n_cases_all",
       "n_cases_new_all", "pop_sex")], 
       by = df[, c("region", "country", "site", "sex")], FUN = sum, na.rm = T)
     df$region <- sapply(strwrap(df$region, 15, simplify=F), paste, 
         collapse = "\n" )    
     mh2a_cr_site <- df
-    mh2a_cr_site$cons_rate_mh <- mh2a_cr_site$n_cases_mh * 12 / 
+    mh2a_cr_site$cons_rate_mh <- mh2a_cr_site$n_cases * 1200 / 
       mh2a_cr_site$pop_sex
-    mh2a_cr_site$cons_rate_all <- mh2a_cr_site$n_cases_all * 12 / 
+    mh2a_cr_site$cons_rate_all <- mh2a_cr_site$n_cases_all * 1200 / 
       mh2a_cr_site$pop_sex
     mh2a_cr_site[which(mh2a_cr_site$cons_rate_mh %in% c(NaN, Inf)),
       "cons_rate_mh"] <-NA 
@@ -493,13 +493,13 @@
 
     # MH and all-cause consultation rates (new / all), by sex, for each country
     df <- subset(df, ! is.na(pop_sex) & pop_sex > 0)
-    df <- aggregate(df[, c("n_cases_mh", "n_cases_mh_new", "n_cases_all",
+    df <- aggregate(df[, c("n_cases", "n_cases_mh_new", "n_cases_all",
       "n_cases_new_all", "pop_sex")], 
       by = df[, c("region", "country", "sex")], FUN = sum, na.rm = T)
     mh2a_cr_country <- df
-    mh2a_cr_country$cons_rate_mh <- mh2a_cr_country$n_cases_mh * 12 / 
+    mh2a_cr_country$cons_rate_mh <- mh2a_cr_country$n_cases * 1200 / 
       mh2a_cr_country$pop_sex
-    mh2a_cr_country$cons_rate_all <- mh2a_cr_country$n_cases_all * 12 / 
+    mh2a_cr_country$cons_rate_all <- mh2a_cr_country$n_cases_all * 1200 / 
       mh2a_cr_country$pop_sex
     mh2a_cr_country[which(mh2a_cr_country$cons_rate_mh %in% c(NaN, Inf)),
       "cons_rate_mh"] <-NA 
@@ -515,9 +515,9 @@
     df$region <- sapply(strwrap(df$region, 15, simplify=F), paste, 
         collapse = "\n" )    
     mh2b_cr_site <- df
-    mh2b_cr_site$cons_rate_mh <- mh2b_cr_site$n_cases * 12 / 
+    mh2b_cr_site$cons_rate_mh <- mh2b_cr_site$n_cases * 1200 / 
       mh2b_cr_site$pop
-    mh2b_cr_site$cons_rate_all <- mh2b_cr_site$n_cases_all * 12 / 
+    mh2b_cr_site$cons_rate_all <- mh2b_cr_site$n_cases_all * 1200 / 
       mh2b_cr_site$pop
     mh2a_cr_site[which(mh2a_cr_site$cons_rate_mh %in% c(NaN, Inf)),
       "cons_rate_mh"] <-NA 
@@ -532,9 +532,9 @@
       "n_cases_new_all", "pop")], 
       by = df[, c("region", "country")], FUN = sum, na.rm = T)
     mh2b_cr_country <- df
-    mh2b_cr_country$cons_rate_mh <- mh2b_cr_country$n_cases * 12 / 
+    mh2b_cr_country$cons_rate_mh <- mh2b_cr_country$n_cases * 1200 / 
       mh2b_cr_country$pop
-    mh2b_cr_country$cons_rate_all <- mh2b_cr_country$n_cases_all * 12 / 
+    mh2b_cr_country$cons_rate_all <- mh2b_cr_country$n_cases_all * 1200 / 
       mh2b_cr_country$pop
     mh2b_cr_country[which(mh2b_cr_country$cons_rate_mh %in% c(NaN, Inf)),
       "cons_rate_mh"] <-NA 
@@ -562,15 +562,16 @@
       geom_point(aes(y = cons_rate_country), alpha = 0.5, size = 5, 
         shape = 95) +
       scale_x_discrete("country") +
-      scale_y_continuous("mental health-related consultations per person-year",
-        trans = "sqrt", breaks = c(0.00, 0.05, 0.10, 0.20))+
+      scale_y_continuous(
+        "mental health-related consultations per 100 person-years",
+        trans = "sqrt", breaks = c(0, 2, 5, 10, 20))+
       scale_colour_viridis_d() +
       theme_bw() +
       theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1),
         legend.position = "none", panel.grid.major.x = element_blank()) +
       facet_nested(sex + age ~ region, scales = "free_x", space = "free_x")
     ggsave(paste0(dir_path, "out/02_cr_site.png"), 
-      dpi = "print", units = "cm", width = 15, height = 15*(hw-0.05))
+      dpi = "print", units = "cm", width = 17, height = 17*(hw-0.05))
     
 
   #...................................      
@@ -595,9 +596,9 @@
       geom_bar(aes(y = cons_rate_all), alpha = 0.5, stat = "identity",
         colour = "black") +
       scale_x_discrete("country") +
-      scale_y_continuous("consultations per person-year", 
+      scale_y_continuous("consultations per 100 person-years", 
         expand = c(0, 0),
-        trans = "sqrt", breaks = c(0.0, 0.1, 0.2, 0.5, 1, 2, 3, 4, 5))+
+        trans = "sqrt", breaks = c(0, 10, 20, 50, 100, 200, 300, 400, 500))+
       scale_fill_viridis_d() +
       theme_bw() +
       theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1),

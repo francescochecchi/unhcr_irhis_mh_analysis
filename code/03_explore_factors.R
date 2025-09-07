@@ -9,7 +9,7 @@
 
 
 #...............................................................................
-### Exploring univariate associations with consultation rate
+### Exploring factors associated with consultation rate
 #...............................................................................
 
   #...................................      
@@ -76,4 +76,79 @@
     # Compute consultation rates
     mh3$cons_rate_mh <- mh3$n_cases * 1200 / mh3$pop_0405
     mh3$cons_rate_all <- mh3$n_cases_all * 1200 / mh3$pop_0405
+
+  #...................................      
+  ## Visualise variable distributions
+
+    # MH consultation rate
+    pl <- ggplot(mh3, aes(x = cons_rate_mh)) +
+      geom_histogram(alpha = 0.75, colour = "black", fill = palette_gen[10]) +
+      scale_x_continuous("mental health-related consultation rate",
+        trans = "sqrt", limits = c(NA, 100), breaks = c(0, 2, 5, 10, 20, 40, 
+          60, 80, 100), expand = c(0,0)) +
+      scale_y_continuous("number of site-months", 
+        expand = expansion(add = c(0,20))) +
+      theme_bw() +
+      theme(panel.grid.major.x = element_blank())
+    ggsave(paste0(dir_path, "out/03_dist_cons_rate.png"), 
+      dpi = "print", units = "cm", width = 20, height = 10*(hw-0.05))
     
+    # Remove outlier consultation rate values (n = 11 with value > 100)
+    mh3 <- subset(mh3, cons_rate_mh < 100)
+
+    # Clinician FTEs
+    pl <- ggplot(mh3, aes(x = fte_clinicians)) +
+      geom_histogram(alpha = 0.75, colour = "black", fill = palette_gen[15]) +
+      scale_x_continuous("FTE clinicians", expand = c(0,0)) +
+      scale_y_continuous("number of site-months", 
+        expand = expansion(add = c(0,20))) +
+      theme_bw() +
+      theme(panel.grid.major.x = element_blank())
+    ggsave(paste0(dir_path, "out/03_dist_fte_clinicians.png"), 
+      dpi = "print", units = "cm", width = 20, height = 10*(hw-0.05))
+    
+    # Health facility open days
+    pl <- ggplot(mh3, aes(x = days_open)) +
+      geom_histogram(alpha = 0.75, colour = "black", fill = palette_gen[5]) +
+      scale_x_continuous("health facility opening days", expand = c(0,0)) +
+      scale_y_continuous("number of site-months", 
+        expand = expansion(add = c(0,20))) +
+      theme_bw() +
+      theme(panel.grid.major.x = element_blank())
+    ggsave(paste0(dir_path, "out/03_dist_days_open.png"), 
+      dpi = "print", units = "cm", width = 20, height = 10*(hw-0.05))
+        
+  #...................................      
+  ## Visualise univariate associations
+
+    # Clinician FTEs
+    pl <- ggplot(mh3, aes(x = fte_clinicians, y = cons_rate_mh, 
+      colour = region)) +
+      geom_point(alpha = 0.75) +
+      scale_x_continuous("clinician FTEs", expand = expansion(add = 0.2,0), 
+        trans = "sqrt") +
+      scale_y_continuous("mental health-related consultation rate", 
+        expand = expansion(add = c(0.2,0)), trans = "sqrt") +
+      scale_colour_viridis_d() +
+      theme_bw() +
+      theme(panel.grid.major.x = element_blank(), legend.position = "bottom") +
+      guides(colour = guide_legend(nrow = 2, reverse = T)) +
+      geom_smooth(colour = palette_gen[15])
+    ggsave(paste0(dir_path, "out/03_cons_rate_vs_fte_clinicians.png"), 
+      dpi = "print", units = "cm", width = 15, height = 15*(hw-0.05))
+    
+    # Health facility open days
+    pl <- ggplot(mh3, aes(x = days_open, y = cons_rate_mh, 
+      colour = region)) +
+      geom_point(alpha = 0.75) +
+      scale_x_continuous("health facility opening days", 
+        expand = expansion(add = 0.2,0), trans = "sqrt") +
+      scale_y_continuous("mental health-related consultation rate", 
+        expand = expansion(add = c(0.2,0)), trans = "sqrt") +
+      scale_colour_viridis_d() +
+      theme_bw() +
+      theme(panel.grid.major.x = element_blank(), legend.position = "bottom") +
+      guides(colour = guide_legend(nrow = 2, reverse = T)) +
+      geom_smooth(colour = palette_gen[5])
+    ggsave(paste0(dir_path, "out/03_cons_rate_vs_days_open.png"), 
+      dpi = "print", units = "cm", width = 15, height = 15*(hw-0.05))

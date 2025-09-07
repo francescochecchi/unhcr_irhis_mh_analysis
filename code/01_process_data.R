@@ -466,7 +466,7 @@
     # Aggregate by cat2 across all ages and sexes
     mh2b <- aggregate(list(n_cases = mh2a$n_cases), 
       by = mh2a[, c("region", "country", "site",
-        "mmyy", "pt_type", "cat2")], FUN = "sum", na.rm = TRUE)
+        "mmyy", "pt_type", "cat2")], FUN = "sum", na.rm = T)
     mh2b <- merge(mh2b, sites[, c("region", "country", "site", "site_demog",
       "site_pop0405")], by = c("region", "country", "site"), all.x = T)
     
@@ -480,8 +480,7 @@
     mh2a <- merge(mh2a, cons, by = c("region", "country", "site", "mmyy", 
       "pt_type", "sex"), all.x = T)    
     x <- aggregate(cons[,c("n_cases_all", "n_cases_new_all", "n_cases_mh_new")],
-      by = cons[, c("region", "country", "site", "mmyy", "pt_type")], FUN = sum,
-      na.rm = T)
+      by = cons[, c("region", "country", "site", "mmyy", "pt_type")], FUN = sum)
     mh2b <- merge(mh2b, x, by = c("region", "country", "site", "mmyy", 
       "pt_type"), all.x = T)    
 

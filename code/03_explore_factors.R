@@ -352,15 +352,17 @@
     mh4p$country <- as.character(mh4p$country)
     mh4p$site <- as.character(mh4p$site)
     mh4p$cat2 <- factor(mh4p$cat2)
+    mh4p$cat2 <- relevel(mh4p$cat2, "Epilepsy or seizures")
     
     # Fit model of consultation rate  
       # [TO DO LATER]
       
     # Fit model of consultation proportion (method of weights - checked, OK!)
     mcp <- mblogit(cat2 ~ fte_clinicians_cat + days_open_sc + n_psych, 
-      data = mh4p, weights = n_cases)
-    x <- mtable(mcp)
+      data = mh4p, weights = n_cases, random = ~1|country/site)
+    x <- mtable(mcp, coef.style = "horizontal", summary.stats = 
+        c("N", "AIC", "Deviance"))
+    x$mcp$coef[,1,] <- exp(x$mcp$coef[,1,])
     write_html(x, paste0(dir_path, "out/03_mblogit_cat2.html"))
     
-    + (1  | country/site), 
             

@@ -247,7 +247,7 @@
         expand = expansion(add = 0.2,0), trans = "sqrt") +
       scale_y_continuous(
         "proportion of consultations that were mental health-related", 
-        expand = expansion(add = c(0.01,0)), trans = "sqrt", labels = percent) +
+        expand = expansion(add = c(0.01,0)), trans = "sqrt") +
       scale_colour_viridis_d() +
       theme_bw() +
       theme(panel.grid.major.x = element_blank(), legend.position = "bottom") +
@@ -358,8 +358,10 @@
       # [TO DO LATER]
       
     # Fit model of consultation proportion (method of weights - checked, OK!)
+        # nested random effects require too much computational power, so
+        # just kept country
     mcp <- mblogit(cat2 ~ fte_clinicians_cat + days_open_sc + n_psych, 
-      data = mh4p, weights = n_cases, random = ~1|country/site)
+      data = mh4p, weights = n_cases, random = ~1|country)
     x <- mtable(mcp, coef.style = "horizontal", summary.stats = 
         c("N", "AIC", "Deviance"))
     x$mcp$coef[,1,] <- exp(x$mcp$coef[,1,])

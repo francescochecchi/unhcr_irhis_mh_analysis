@@ -61,7 +61,15 @@
       "n_cases_all", "fte_clinicians", "days_open", "pop_0405")])
     df <- aggregate(list(n_cases = mh3$n_cases), 
       by = mh3[, c("country", "site", "mmyy")], FUN = sum, na.rm = T)
-    mh3 <- merge(df, x, by = c("country", "site", "mmyy"), all.x = T)        
+    mh3 <- merge(df, x, by = c("country", "site", "mmyy"), all.x = T)
+    
+    # Compute consultation rate
+    mh3$cons_rate_mh <- mh3$n_cases * 1200 / mh3$pop_0405
+    
+    # Add WHO data
+    x <- who[, c("country_iso", "n_psych")]
+    mh3 <- merge(mh3, x, by = "country_iso", all.x = T)
+    mh3 <- subset(mh3, ! is.na(n_psych))
 
   #...................................      
   ## Visualise variable distributions
@@ -118,6 +126,19 @@
       theme(panel.grid.major.x = element_blank())
     ggsave(paste0(dir_path, "out/03_dist_days_open.png"), 
       dpi = "print", units = "cm", width = 20, height = 10*(hw-0.05))
+    
+    # Psychiatrist density
+    pl <- ggplot(mh3, aes(x = n_psych)) +
+      geom_histogram(alpha = 0.75, colour = "black", fill = palette_gen[1]) +
+      scale_x_continuous("psychiatrists per 100,000 population", 
+        expand = c(0,0)) +
+      scale_y_continuous("number of site-months", 
+        expand = expansion(add = c(0,20))) +
+      theme_bw() +
+      theme(panel.grid.major.x = element_blank())
+    ggsave(paste0(dir_path, "out/03_dist_n_psych.png"), 
+      dpi = "print", units = "cm", width = 20, height = 10*(hw-0.05))
+    
         
   #...................................      
   ## Visualise univariate associations with consultation rate
@@ -154,6 +175,26 @@
     ggsave(paste0(dir_path, "out/03_cons_rate_vs_days_open.png"), 
       dpi = "print", units = "cm", width = 15, height = 15*(hw-0.05))
 
+    # Psychiatrist density
+    df <- aggregate(mh3[, c("n_cases", "pop_0405")], 
+      by = list(country = mh3[, c("country")]), FUN = sum)
+    df$cons_rate_mh <- df$n_cases * 1200 / df$pop_0405
+    pl <- ggplot(mh3, aes(x = n_psych, y = cons_rate_mh, 
+      colour = region)) +
+      geom_point(alpha = 0.75) +
+      scale_x_continuous("psychiatrists per 100,000 population", 
+        expand = expansion(add = 0.2,0), trans = "sqrt") +
+      scale_y_continuous("mental health-related consultation rate", 
+        expand = expansion(add = c(0.2,0)), trans = "sqrt") +
+      scale_colour_viridis_d() +
+      theme_bw() +
+      theme(panel.grid.major.x = element_blank(), legend.position = "bottom") +
+      guides(colour = guide_legend(nrow = 2, reverse = T)) +
+      geom_smooth(colour = palette_gen[1])
+    ggsave(paste0(dir_path, "out/03_cons_rate_vs_n_psych.png"), 
+      dpi = "print", units = "cm", width = 15, height = 15*(hw-0.05))
+    
+    
   #...................................      
   ## Visualise univariate associations with consultation proportion
 
@@ -190,7 +231,25 @@
       geom_smooth(colour = palette_gen[5])
     ggsave(paste0(dir_path, "out/03_cons_prop_vs_days_open.png"), 
       dpi = "print", units = "cm", width = 15, height = 15*(hw-0.05))
+
+    # Psychiatrist density
+    pl <- ggplot(mh3, aes(x = n_psych, y = cons_prop_mh, 
+      colour = region)) +
+      geom_point(alpha = 0.75) +
+      scale_x_continuous("health facility opening days", 
+        expand = expansion(add = 0.2,0), trans = "sqrt") +
+      scale_y_continuous(
+        "proportion of consultations that were mental health-related", 
+        expand = expansion(add = c(0.02,0)), trans = "sqrt", labels = percent) +
+      scale_colour_viridis_d() +
+      theme_bw() +
+      theme(panel.grid.major.x = element_blank(), legend.position = "bottom") +
+      guides(colour = guide_legend(nrow = 2, reverse = T)) +
+      geom_smooth(colour = palette_gen[1])
+    ggsave(paste0(dir_path, "out/03_cons_prop_vs_n_psych.png"), 
+      dpi = "print", units = "cm", width = 15, height = 15*(hw-0.05))
     
+        
   #...................................      
   ## Fit multivariate exploratory models
     

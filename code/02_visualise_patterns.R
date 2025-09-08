@@ -177,7 +177,7 @@
     range(df$n_hf)
     
 #...............................................................................
-### Visualising patterns not related to geography (country / site)
+### Visualising patterns in causes not related to geography (country / site)
 #...............................................................................
 
   #...................................      
@@ -187,19 +187,25 @@
     df <- subset(mh1, pt_type == "refugee")
     df <- aggregate(list(n_cases = df$n_cases),
       by = df[, c("age", "sex", "cat1")], FUN = sum, na.rm = T)
-    
+    x <- aggregate(list(n_cases_tot = df$n_cases), by = df[, c("age", "sex")],
+      FUN = sum, na.rm = T)
+    df <- merge(df, x, by = c("age", "sex"), all.x = T)
+    df$prop_cases <- df$n_cases / df$n_cases_tot
+    df$prop_cases <- label_percent(accuracy = 0.1)(df$prop_cases)
+        
     # Plot
     pl <- ggplot(df, aes(x = cat1, y = n_cases, fill = cat1)) +
-      geom_col(alpha = 0.75) +
+      geom_col(alpha = 0.75, colour = "black") +
       scale_x_discrete("ICD code(s)") +
       scale_y_continuous("number of consultations", labels = comma,
-        expand = c(0,0), limits = c(0, max(df$n_cases * 1.05))) +
+        expand = c(0,0), limits = c(0, max(df$n_cases * 1.1))) +
       scale_fill_viridis_d() +
       theme_bw() +
       theme(legend.position = "none", axis.text.x = element_text(angle = 45,
         hjust = 1, vjust = 1), panel.grid.major.x = element_blank(),
         plot.margin = margin(0, 0, 0, 3.5, unit = "cm")) +
-      facet_grid(age ~ sex)
+      facet_grid(age ~ sex) +
+      geom_text(aes(label = prop_cases), nudge_y = 1500, size = 2)
     ggsave(paste0(dir_path, "out/02_cat1_age_sex.png"), dpi = "print",
       units = "cm", width = 20, height = 20*hw)
    
@@ -221,10 +227,11 @@
     df <- reshape(x, direction = "long", varying = 1:length(unique(df$cat1)),
       idvar = c("pt_type", "age"), timevar = "cat1", times = unique(df$cat1),
       v.names = "prop")
+    df$prop_lab <- label_percent(accuracy = 0.1)(df$prop)
     
     # Plot
     pl <- ggplot(df, aes(x = cat1, y = prop, fill = cat1)) +
-      geom_col(alpha = 0.75, position = "identity") +
+      geom_col(alpha = 0.75, position = "identity", colour = "black") +
       scale_x_discrete("ICD code(s)") +
       scale_y_continuous("percentage of consultations within age group", 
         labels = percent, expand = c(0,0), limits = c(0, 1), 
@@ -234,7 +241,8 @@
       theme(legend.position = "none", axis.text.x = element_text(angle = 45,
         hjust = 1, vjust = 1), panel.grid.major.x = element_blank(),
         plot.margin = margin(0, 0, 0, 3.7, unit = "cm")) +
-      facet_grid(age ~ pt_type)
+      facet_grid(age ~ pt_type) +
+      geom_text(aes(label = prop_lab), nudge_y = 0.05, size = 2)
     ggsave(paste0(dir_path, "out/02_cat1_age_pt_type.png"), dpi = "print",
       units = "cm", width = 20, height = 20*hw)
    
@@ -246,25 +254,31 @@
     df <- subset(mh2, pt_type == "refugee")
     df <- aggregate(list(n_cases = df$n_cases),
       by = df[, c("age", "sex", "cat2")], FUN = sum, na.rm = T)
+    x <- aggregate(list(n_cases_tot = df$n_cases), by = df[, c("age", "sex")],
+      FUN = sum, na.rm = T)
+    df <- merge(df, x, by = c("age", "sex"), all.x = T)
+    df$prop_cases <- df$n_cases / df$n_cases_tot
+    df$prop_cases <- label_percent(accuracy = 0.1)(df$prop_cases)
     
     # Plot
     pl <- ggplot(df, aes(x = cat2, y = n_cases, fill = cat2)) +
-      geom_col(alpha = 0.75) +
+      geom_col(alpha = 0.75, colour = "black") +
       scale_x_discrete("category") +
       scale_y_continuous("number of consultations", labels = comma,
-        expand = c(0,0), limits = c(0, max(df$n_cases * 1.05))) +
+        expand = c(0,0), limits = c(0, max(df$n_cases * 1.1))) +
       scale_fill_viridis_d() +
       theme_bw() +
       theme(legend.position = "none", axis.text.x = element_text(angle = 45,
         hjust = 1, vjust = 1), panel.grid.major.x = element_blank(),
         plot.margin = margin(0, 0, 0, 2.5, unit = "cm")) +
-      facet_grid(age ~ sex)
+      facet_grid(age ~ sex) +
+      geom_text(aes(label = prop_cases), nudge_y = 1500, size = 2.5)
     ggsave(paste0(dir_path, "out/02_cat2_age_sex.png"), dpi = "print",
       units = "cm", width = 18, height = 18*hw)
    
 
   #...................................      
-  ## Compare ICD codes by age group (refugees vs nationals)
+  ## Compare supra-categories by age group (refugees vs nationals)
     
     # Prepare dataset
     df <- aggregate(list(n_cases = mh2$n_cases), 
@@ -280,26 +294,28 @@
     df <- reshape(x, direction = "long", varying = 1:length(unique(df$cat2)),
       idvar = c("pt_type", "age"), timevar = "cat2", times = unique(df$cat2),
       v.names = "prop")
+    df$prop_lab <- label_percent(accuracy = 0.1)(df$prop)
     
     # Plot
     pl <- ggplot(df, aes(x = cat2, y = prop, fill = cat2)) +
-      geom_col(alpha = 0.75, position = "identity") +
+      geom_col(alpha = 0.75, position = "identity", colour = "black") +
       scale_x_discrete("category") +
       scale_y_continuous("percentage of consultations within age group", 
         labels = percent, expand = c(0,0), limits = c(0, 1), 
-        breaks = seq(0, 0.8, 0.2)) +
+        breaks = seq(0, 1, 0.2)) +
       scale_fill_viridis_d() +
       theme_bw() +
       theme(legend.position = "none", axis.text.x = element_text(angle = 45,
         hjust = 1, vjust = 1), panel.grid.major.x = element_blank(),
         plot.margin = margin(0, 0, 0, 2.5, unit = "cm")) +
-      facet_grid(age ~ pt_type)
+      facet_grid(age ~ pt_type) +
+      geom_text(aes(label = prop_lab), nudge_y = 0.05, size = 2.5)      
     ggsave(paste0(dir_path, "out/02_cat2_age_pt_type.png"), dpi = "print",
       units = "cm", width = 18, height = 18*hw)
    
  
 #...............................................................................
-### Visualising patterns related to geography (country / site)
+### Visualising patterns in causes related to geography (country / site)
 #...............................................................................
 
   #...................................      
@@ -362,7 +378,6 @@
     ggsave(paste0(dir_path, "out/02_cat2_country_pt_type.png"), dpi = "print",
       units = "cm", width = 18, height = 18*hw)
      
-
   #...................................      
   ## Compare supra-categories by country - ALTERNATIVE (refugees vs nationals)
     
@@ -384,7 +399,8 @@
     
     # Plot
     pl <- ggplot(df, aes(x = prop, y = country, fill = cat2)) +
-      geom_bar(alpha = 0.75, stat = "identity", position = "fill") +
+      geom_bar(alpha = 0.75, stat = "identity", position = "fill", 
+        colour = "black") +
       scale_x_continuous("percentage of all consultations", labels = percent) +
       scale_y_discrete("country", limits = rev) +
       scale_fill_viridis_d() +
@@ -423,7 +439,8 @@
     
     # Plot
     pl <- ggplot(df, aes(x = prop, y = site, fill = cat2)) +
-      geom_bar(alpha = 0.75, stat = "identity", position = "fill") +
+      geom_bar(alpha = 0.75, stat = "identity", position = "fill", 
+        colour = "black") +
       scale_x_continuous("percentage of all consultations", labels = percent,
         expand = expansion(mult = c(0.02, 0))) +
       scale_y_discrete("site", limits = rev) +
@@ -453,9 +470,15 @@
     # MH consultation rates by age and sex, for each site
     df <- subset(mh2, pt_type == "refugee")
     df$pop_agesex <- df$pop_0405 * df$prop_agesex
-    df <- aggregate(df[, c("n_cases", "pop_agesex")], 
-      by = df[, c("region", "country", "site", "age", "sex")], 
+    x <- unique(df[which(! is.na(df$pop_agesex)),
+      c("region", "country", "site", "mmyy", "age", "sex", "pop_agesex")])
+    df <- aggregate(list(n_cases = df$n_cases), 
+      by = df[, c("region", "country", "site", "mmyy", "age", "sex")], 
       FUN = sum, na.rm = T)
+    df <- merge(df, x, by =c("region", "country", "site", "mmyy", "age", "sex"), 
+      all.x = T)
+    df <- aggregate(df[, c("n_cases", "pop_agesex")], 
+      by = df[, c("region", "country", "site", "age", "sex")], FUN = sum)
     df$region <- sapply(strwrap(df$region, 15, simplify=F), paste, 
         collapse = "\n" )    
     mh2_cr_site <- df
@@ -466,18 +489,24 @@
     # MH consultation rates by age and sex, for each country
     df <- subset(df, ! is.na(pop_agesex) & pop_agesex > 0)
     df <- aggregate(df[, c("n_cases", "pop_agesex")], 
-      by = df[, c("region", "country", "age", "sex")], FUN = sum, na.rm = T)
+      by = df[, c("region", "country", "age", "sex")], FUN = sum)
     mh2_cr_country <- df
     mh2_cr_country$cons_rate <- mh2_cr_country$n_cases * 1200 / 
       mh2_cr_country$pop_agesex
     mh2_cr_country[which(mh2_cr_country$cons_rate %in% c(NaN, Inf)),
       "cons_rate"] <-NA 
 
-    # MH and all-cause consultation rates (new / all), by sex, for each site
+    # MH and all-cause consultation rates, by sex, for each site
     df <- subset(mh2a, pt_type == "refugee")
     df$pop_sex <- df$pop_0405 * df$prop_sex
-    df <- aggregate(df[, c("n_cases", "n_cases_mh_new", "n_cases_all",
-      "n_cases_new_all", "pop_sex")], 
+    x <- unique(df[, c("region", "country", "site", "mmyy", "sex", 
+      "n_cases_all", "pop_sex")])
+    df <- aggregate(list(n_cases = df$n_cases), 
+      by = df[, c("region", "country", "site", "mmyy", "sex")], FUN = sum, 
+      na.rm = T)
+    df <- merge(df, x, by = c("region", "country", "site", "mmyy", "sex"), 
+      all.x = T)
+    df <- aggregate(df[, c("n_cases", "n_cases_all", "pop_sex")], 
       by = df[, c("region", "country", "site", "sex")], FUN = sum, na.rm = T)
     df$region <- sapply(strwrap(df$region, 15, simplify=F), paste, 
         collapse = "\n" )    
@@ -491,12 +520,16 @@
     mh2a_cr_site[which(mh2a_cr_site$cons_rate_all %in% c(NaN, Inf)),
       "cons_rate_all"] <-NA 
 
-    # MH and all-cause consultation rates (new / all), by sex, for each country
-    df <- subset(df, ! is.na(pop_sex) & pop_sex > 0)
-    df <- aggregate(df[, c("n_cases", "n_cases_mh_new", "n_cases_all",
-      "n_cases_new_all", "pop_sex")], 
-      by = df[, c("region", "country", "sex")], FUN = sum, na.rm = T)
+    # MH and all-cause consultation rates, by sex, for each country
+    df <- subset(mh2a_cr_site, ! is.na(mh2a_cr_site$cons_rate_mh))
+    df <- aggregate(df[, c("n_cases", "pop_sex")], 
+      by = df[, c("region", "country", "sex")], FUN = sum)
     mh2a_cr_country <- df
+    df <- subset(mh2a_cr_site, ! is.na(mh2a_cr_site$cons_rate_all))
+    df <- aggregate(list(n_cases_all = df$n_cases_all), 
+      by = df[, c("region", "country", "sex")], FUN = sum)
+    mh2a_cr_country <- merge(mh2a_cr_country, df, 
+      by = c("region", "country", "sex"), all.x = T)
     mh2a_cr_country$cons_rate_mh <- mh2a_cr_country$n_cases * 1200 / 
       mh2a_cr_country$pop_sex
     mh2a_cr_country$cons_rate_all <- mh2a_cr_country$n_cases_all * 1200 / 
@@ -506,11 +539,15 @@
     mh2a_cr_country[which(mh2a_cr_country$cons_rate_all %in% c(NaN, Inf)),
       "cons_rate_all"] <-NA 
         
-    # MH and all-cause consultation rates (new / all), for each site
+    # MH and all-cause consultation rates, for each site
     df <- subset(mh2b, pt_type == "refugee")
     df$pop <- df$pop_0405
-    df <- aggregate(df[, c("n_cases", "n_cases_mh_new", "n_cases_all",
-      "n_cases_new_all", "pop")], 
+    x <- unique(df[, c("region", "country", "site", "mmyy", 
+      "n_cases_all", "pop")])
+    df <- aggregate(list(n_cases = df$n_cases), 
+      by = df[, c("region", "country", "site", "mmyy")], FUN = sum, na.rm = T)
+    df <- merge(df, x, by = c("region", "country", "site", "mmyy"), all.x = T)
+    df <- aggregate(df[, c("n_cases", "n_cases_all", "pop")], 
       by = df[, c("region", "country", "site")], FUN = sum, na.rm = T)
     df$region <- sapply(strwrap(df$region, 15, simplify=F), paste, 
         collapse = "\n" )    
@@ -519,19 +556,21 @@
       mh2b_cr_site$pop
     mh2b_cr_site$cons_rate_all <- mh2b_cr_site$n_cases_all * 1200 / 
       mh2b_cr_site$pop
-    mh2a_cr_site[which(mh2a_cr_site$cons_rate_mh %in% c(NaN, Inf)),
+    mh2b_cr_site[which(mh2b_cr_site$cons_rate_mh %in% c(NaN, Inf)),
       "cons_rate_mh"] <-NA 
-    mh2a_cr_site[which(mh2a_cr_site$cons_rate_all %in% c(NaN, Inf)),
+    mh2b_cr_site[which(mh2b_cr_site$cons_rate_all %in% c(NaN, Inf)),
       "cons_rate_all"] <-NA 
 
-    # MH and all-cause consultation rates (new / all), for each country
-    df <- subset(mh2b, pt_type == "refugee")
-    df$pop <- df$pop_0405
-    df <- subset(df, ! is.na(pop) & pop > 0)
-    df <- aggregate(df[, c("n_cases", "n_cases_mh_new", "n_cases_all",
-      "n_cases_new_all", "pop")], 
-      by = df[, c("region", "country")], FUN = sum, na.rm = T)
+    # MH and all-cause consultation rates, for each country
+    df <- subset(mh2b_cr_site, ! is.na(mh2b_cr_site$cons_rate_mh))
+    df <- aggregate(df[, c("n_cases", "pop")], 
+      by = df[, c("region", "country")], FUN = sum)
     mh2b_cr_country <- df
+    df <- subset(mh2b_cr_site, ! is.na(mh2b_cr_site$cons_rate_all))
+    df <- aggregate(list(n_cases_all = df$n_cases_all), 
+      by = df[, c("region", "country")], FUN = sum)
+    mh2b_cr_country <- merge(mh2b_cr_country, df, 
+      by = c("region", "country"), all.x = T)
     mh2b_cr_country$cons_rate_mh <- mh2b_cr_country$n_cases * 1200 / 
       mh2b_cr_country$pop
     mh2b_cr_country$cons_rate_all <- mh2b_cr_country$n_cases_all * 1200 / 
@@ -540,8 +579,6 @@
       "cons_rate_mh"] <-NA 
     mh2b_cr_country[which(mh2b_cr_country$cons_rate_all %in% c(NaN, Inf)),
       "cons_rate_all"] <-NA 
-    mh2b_cr_country$region <- sapply(strwrap(mh2b_cr_country$region, 
-      15, simplify=F), paste, collapse = "\n" )
     
     
   #...................................      
@@ -564,7 +601,7 @@
       scale_x_discrete("country") +
       scale_y_continuous(
         "mental health-related consultations per 100 person-years",
-        trans = "sqrt", breaks = c(0, 2, 5, 10, 20))+
+        trans = "sqrt", breaks = c(0, 5, 20, 50, 100))+
       scale_colour_viridis_d() +
       theme_bw() +
       theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1),
@@ -597,15 +634,15 @@
         colour = "black") +
       scale_x_discrete("country") +
       scale_y_continuous("consultations per 100 person-years", 
-        expand = c(0, 0),
+        expand = expansion(add = c(0, 1)),
         trans = "sqrt", breaks = c(0, 2, 10, 20, 50, 100, 200, 300, 400, 500)) +
       scale_fill_viridis_d() +
       theme_bw() +
       theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1),
         legend.position = "none", panel.grid.major.x = element_blank()) +
       facet_nested(sex ~ region, scales = "free_x", space = "free_x") +
-      geom_label(aes(label = percent_mh, y = 10), size = 2, colour = "grey20",
-        fill = "white", alpha = 0.75)
+      geom_label(aes(label = percent_mh, y = cons_rate_mh), size = 2, 
+        colour = "grey20", fill = "white", alpha = 0.75, nudge_y = 1.5)
     ggsave(paste0(dir_path, "out/02_cr_country.png"), 
       dpi = "print", units = "cm", width = 15, height = 15*(hw-0.05))
 
@@ -629,7 +666,7 @@
     df$cons_rate_lab <- label_number(accuracy = 0.1)(df$cons_rate)
     df[which(is.na(df$cons_rate_lab)), "cons_rate_lab"] <- "*"
     df$cons_rate_lab_y <- ifelse(is.na(df$cons_rate), 0.005, 
-      0.05 + df$cons_rate * 1.1)
+      0.1 + df$cons_rate * 1.15)
     
     # Plot
     pl <- ggplot(df, aes(x = country, y = cons_rate, fill = region, 
@@ -639,7 +676,7 @@
       scale_x_discrete("country") +
       scale_y_continuous(
         "mental health-related consultations per 100 person-years",
-        trans = "sqrt", breaks = c(0, 0.1, 0.2, 0.5, 1, 2, 5), 
+        trans = "sqrt", breaks = c(0, 0.2, 0.5, 1, 2, 5, 10, 20), 
         expand = expansion(add = c(0,0.1)))+
       scale_fill_viridis_d() +
       scale_alpha_discrete() +
@@ -694,7 +731,8 @@
     pl <- ggplot(df, aes(x = country, y = prop, fill = region)) +
       geom_bar(alpha = 0.75, stat = "identity", colour = "black") +
       scale_x_discrete("country") +
-      scale_y_continuous("proportion of new consultations", 
+      scale_y_continuous(
+        "new consultations as a proportion of all consultations", 
         expand = c(0, 0), breaks = seq(0, 1, 0.2), labels = percent) +
       scale_fill_viridis_d() +
       theme_bw() +
@@ -743,7 +781,8 @@
     pl <- ggplot(df, aes(x = country, y = prop, fill = region)) +
       geom_bar(alpha = 0.75, stat = "identity", colour = "black") +
       scale_x_discrete("country") +
-      scale_y_continuous("proportion of new consultations", 
+      scale_y_continuous(
+        "new consultations as a proportion of all consultations", 
         expand = c(0, 0), breaks = seq(0, 1, 0.2), labels = percent) +
       scale_fill_viridis_d() +
       theme_bw() +

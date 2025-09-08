@@ -30,6 +30,7 @@
       lubridate,     # Work with dates and times
       MASS,          # Implement various statistical methods
       mgcv,          # Fit generalised additive models
+      parameters,    # Extract model output
       readxl,        # Read Excel files
       scales,        # Scale and format data for visualisation
       sf,            # Work with shape files and maps

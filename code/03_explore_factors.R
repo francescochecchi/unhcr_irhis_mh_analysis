@@ -177,9 +177,11 @@
 
     # Psychiatrist density
     df <- aggregate(mh3[, c("n_cases", "pop_0405")], 
-      by = list(country = mh3[, c("country")]), FUN = sum)
+      by = mh3[, c("region", "country", "country_iso")], FUN = sum)
     df$cons_rate_mh <- df$n_cases * 1200 / df$pop_0405
-    pl <- ggplot(mh3, aes(x = n_psych, y = cons_rate_mh, 
+    df <- merge(df, who[, c("country_iso", "n_psych")], by = "country_iso",
+      all.x = T)
+    pl <- ggplot(df, aes(x = n_psych, y = cons_rate_mh, 
       colour = region)) +
       geom_point(alpha = 0.75) +
       scale_x_continuous("psychiatrists per 100,000 population", 
@@ -233,14 +235,19 @@
       dpi = "print", units = "cm", width = 15, height = 15*(hw-0.05))
 
     # Psychiatrist density
-    pl <- ggplot(mh3, aes(x = n_psych, y = cons_prop_mh, 
+    df <- aggregate(mh3[, c("n_cases", "n_cases_all")], 
+      by = mh3[, c("region", "country", "country_iso")], FUN = sum)
+    df$cons_prop_mh <- df$n_cases / df$n_cases_all
+    df <- merge(df, who[, c("country_iso", "n_psych")], by = "country_iso",
+      all.x = T)
+    pl <- ggplot(df, aes(x = n_psych, y = cons_prop_mh, 
       colour = region)) +
       geom_point(alpha = 0.75) +
-      scale_x_continuous("health facility opening days", 
+      scale_x_continuous("psychiatrists per 100,000 population", 
         expand = expansion(add = 0.2,0), trans = "sqrt") +
       scale_y_continuous(
         "proportion of consultations that were mental health-related", 
-        expand = expansion(add = c(0.02,0)), trans = "sqrt", labels = percent) +
+        expand = expansion(add = c(0.01,0)), trans = "sqrt", labels = percent) +
       scale_colour_viridis_d() +
       theme_bw() +
       theme(panel.grid.major.x = element_blank(), legend.position = "bottom") +
@@ -262,18 +269,17 @@
     mh3$country <- as.character(mh3$country)
     mh3$site <- as.character(mh3$site)
     
-    
     # Fit model of consultation rate
       
       # GAMM  
-      # mcr <- mgcv::bam(n_cases ~ s(fte_clinicians) + days_open + 
+      # mcr <- mgcv::bam(n_cases ~ s(fte_clinicians) + days_open + s(n_psych) +
       #     s(site, bs = "re"), offset = log(pop_0405), data = mh3,
       #   family = "nb")
       # summary(mcr)
       # mgcv::gam.check(mcr)
     
       # GLMM
-      mcr <- glmmTMB(n_cases ~ fte_clinicians_cat + days_open_sc + 
+      mcr <- glmmTMB(n_cases ~ fte_clinicians_cat + days_open_sc + n_psych +
         (1  | country/site), offset = log(pop_0405), data = mh3,
         family = "nbinom1", ziformula = ~0)
       summary(mcr)
@@ -281,10 +287,35 @@
       DHARMa::plotResiduals(mcr)
       
       # # GLMM - zero-inflated (fits better but violates assumptions)
-      # mcr <- glmmTMB(n_cases ~ fte_clinicians_cat + days_open_sc + 
+      # mcr <- glmmTMB(n_cases ~ fte_clinicians_cat + days_open_sc + n_psych +
       #   (1  | country/site), offset = log(pop_0405), data = mh3,
       #   family = "nbinom1", ziformula = ~1)
       # summary(mcr)
       # DHARMa::plotQQunif(mcr)
       # DHARMa::plotResiduals(mcr)
+ 
+      # Extract model output
+      x <- parameters::model_parameters(mcr, exponentiate = T)
+      write.csv(x, paste0(dir_path, "out/03_mcr.csv"), row.names = F)
+      
+    # Fit model of consultation proportion
+      
+      # GLMM
+      mcp <- glmmTMB(cbind(n_cases, n_cases_all) ~ fte_clinicians_cat + 
+          days_open_sc + n_psych + (1  | country/site), data = mh3,
+        family = "binomial")
+      summary(mcp)
+      DHARMa::plotQQunif(mcp)
+      DHARMa::plotResiduals(mcp)
+
+      # Extract model output
+      x <- parameters::model_parameters(mcp, exponentiate = T)
+      write.csv(x, paste0(dir_path, "out/03_mcp.csv"), row.names = F)
+      
+      
+#...............................................................................
+### Exploring factors associated with cause of MH consultations
+#...............................................................................
+
+      
             

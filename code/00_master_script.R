@@ -29,6 +29,8 @@
       lme4,          # Fit mixed models
       lubridate,     # Work with dates and times
       MASS,          # Implement various statistical methods
+      mclogit,       # Multinomial logit models
+      memisc,        # Get coefficients from multinomial logit models
       mgcv,          # Fit generalised additive models
       parameters,    # Extract model output
       readxl,        # Read Excel files

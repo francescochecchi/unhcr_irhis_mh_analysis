@@ -314,8 +314,53 @@
       
       
 #...............................................................................
-### Exploring factors associated with cause of MH consultations
+### Exploring factors associated with cause of MH consultations (refugees only)
 #...............................................................................
 
+  #...................................      
+  ## Fit multivariate exploratory model
+    
+    # Prepare dataset
+    mh4 <- subset(mh2, pt_type == "refugee")  
+    mh4 <- mh4[, c("country", "country_iso", "site", "mmyy", "age", "sex", 
+      "pop_0405", "prop_agesex", "cat2", "n_cases", "fte_clinicians", 
+      "days_open")]  
+    mh4$pop <- mh4$pop_0405 * mh4$prop_agesex
+    mh4 <- merge(mh4, who[, c("country_iso", "n_psych")], by = "country_iso",
+      all.x = T)
+    x <- aggregate(list(n_cases_tot = mh4$n_cases), 
+      by = mh4[, c("country", "site", "mmyy", "age", "sex")], FUN = sum)
+    mh4 <- merge(mh4, x, by = c("country", "site", "mmyy", "age", "sex"), 
+      all.x = T)
       
+      # for consultation rate
+      x <- c("country", "site", "age", "sex", "cat2", "n_cases", "pop", 
+        "fte_clinicians", "days_open", "n_psych")
+      mh4r <- mh4[complete.cases(mh4[, x]), ]
+
+      # for proportion of consultations
+      x <- c("country", "site", "age", "sex", "cat2", "n_cases", "n_cases_tot", 
+        "fte_clinicians", "days_open", "n_psych")
+      mh4p <- mh4[complete.cases(mh4[, x]), ]
+          
+    # Categorise and rescale predictors
+    mh4p$fte_clinicians_cat <- cut(mh4p$fte_clinicians, c(0, 2, 5, 10, 100),
+      labels = c("<2.0", "2.0 to 4.9", "5.0 to 9.9", ">= 10.0"),
+      include.lowest = T, right = F)
+    table(mh4p$fte_clinicians_cat)
+    mh4p$days_open_sc <- scale(mh4p$days_open, center = F, scale = T)
+    mh4p$country <- as.character(mh4p$country)
+    mh4p$site <- as.character(mh4p$site)
+    mh4p$cat2 <- factor(mh4p$cat2)
+    
+    # Fit model of consultation rate  
+      # [TO DO LATER]
+      
+    # Fit model of consultation proportion (method of weights - checked, OK!)
+    mcp <- mblogit(cat2 ~ fte_clinicians_cat + days_open_sc + n_psych, 
+      data = mh4p, weights = n_cases)
+    x <- mtable(mcp)
+    write_html(x, paste0(dir_path, "out/03_mblogit_cat2.html"))
+    
+    + (1  | country/site), 
             

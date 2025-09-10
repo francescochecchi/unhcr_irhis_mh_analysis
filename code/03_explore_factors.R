@@ -92,7 +92,8 @@
 
     # MH consultations proportion
     mh3$cons_prop_mh <- ifelse(mh3$n_cases_all > 0, 
-      mh3$n_cases / mh3$n_cases_all, NA)  
+      mh3$n_cases / mh3$n_cases_all, NA) 
+    mh3$n_cases_not_mh <- mh3$n_cases_all - mh3$n_cases
     pl <- ggplot(mh3, aes(x = cons_prop_mh)) +
       geom_histogram(alpha = 0.75, colour = "black", fill = palette_gen[7]) +
       scale_x_continuous(
@@ -157,7 +158,7 @@
       guides(colour = guide_legend(nrow = 2, reverse = T)) +
       geom_smooth(colour = palette_gen[15])
     ggsave(paste0(dir_path, "out/03_cons_rate_vs_fte_clinicians.png"), 
-      dpi = "print", units = "cm", width = 15, height = 15*(hw-0.05))
+      dpi = "print", units = "cm", width = 15, height = 10*(hw-0.05))
     
     # Health facility open days
     pl <- ggplot(mh3, aes(x = days_open, y = cons_rate_mh, 
@@ -173,7 +174,7 @@
       guides(colour = guide_legend(nrow = 2, reverse = T)) +
       geom_smooth(colour = palette_gen[5])
     ggsave(paste0(dir_path, "out/03_cons_rate_vs_days_open.png"), 
-      dpi = "print", units = "cm", width = 15, height = 15*(hw-0.05))
+      dpi = "print", units = "cm", width = 15, height = 10*(hw-0.05))
 
     # Psychiatrist density
     df <- aggregate(mh3[, c("n_cases", "pop_0405")], 
@@ -194,7 +195,7 @@
       guides(colour = guide_legend(nrow = 2, reverse = T)) +
       geom_smooth(colour = palette_gen[1])
     ggsave(paste0(dir_path, "out/03_cons_rate_vs_n_psych.png"), 
-      dpi = "print", units = "cm", width = 15, height = 15*(hw-0.05))
+      dpi = "print", units = "cm", width = 15, height = 10*(hw-0.05))
     
     
   #...................................      
@@ -215,7 +216,7 @@
       guides(colour = guide_legend(nrow = 2, reverse = T)) +
       geom_smooth(colour = palette_gen[15])
     ggsave(paste0(dir_path, "out/03_cons_prop_vs_fte_clinicians.png"), 
-      dpi = "print", units = "cm", width = 15, height = 15*(hw-0.05))
+      dpi = "print", units = "cm", width = 15, height = 10*(hw-0.05))
     
     # Health facility open days
     pl <- ggplot(mh3, aes(x = days_open, y = cons_prop_mh, 
@@ -232,7 +233,7 @@
       guides(colour = guide_legend(nrow = 2, reverse = T)) +
       geom_smooth(colour = palette_gen[5])
     ggsave(paste0(dir_path, "out/03_cons_prop_vs_days_open.png"), 
-      dpi = "print", units = "cm", width = 15, height = 15*(hw-0.05))
+      dpi = "print", units = "cm", width = 15, height = 10*(hw-0.05))
 
     # Psychiatrist density
     df <- aggregate(mh3[, c("n_cases", "n_cases_all")], 
@@ -254,7 +255,7 @@
       guides(colour = guide_legend(nrow = 2, reverse = T)) +
       geom_smooth(colour = palette_gen[1])
     ggsave(paste0(dir_path, "out/03_cons_prop_vs_n_psych.png"), 
-      dpi = "print", units = "cm", width = 15, height = 15*(hw-0.05))
+      dpi = "print", units = "cm", width = 15, height = 10*(hw-0.05))
     
         
   #...................................      
@@ -301,7 +302,7 @@
     # Fit model of consultation proportion
       
       # GLMM
-      mcp <- glmmTMB(cbind(n_cases, n_cases_all) ~ fte_clinicians_cat + 
+      mcp <- glmmTMB(cbind(n_cases, n_cases_not_mh) ~ fte_clinicians_cat + 
           days_open_sc + n_psych + (1  | country/site), data = mh3,
         family = "binomial")
       summary(mcp)
@@ -318,7 +319,7 @@
 #...............................................................................
 
   #...................................      
-  ## Fit multivariate exploratory model
+  ## Prepare dataset
     
     # Prepare dataset
     mh4 <- subset(mh2, pt_type == "refugee")  
@@ -332,22 +333,60 @@
       by = mh4[, c("country", "site", "mmyy", "age", "sex")], FUN = sum)
     mh4 <- merge(mh4, x, by = c("country", "site", "mmyy", "age", "sex"), 
       all.x = T)
+    mh4 <- merge(mh4, mh3[, c("country", "site", "mmyy", "cons_rate_mh")],
+      by = c("country", "site", "mmyy"), all.x = T)  
       
       # for consultation rate
       x <- c("country", "site", "age", "sex", "cat2", "n_cases", "pop", 
-        "fte_clinicians", "days_open", "n_psych")
+        "fte_clinicians", "days_open", "n_psych", "cons_rate_mh")
       mh4r <- mh4[complete.cases(mh4[, x]), ]
 
       # for proportion of consultations
       x <- c("country", "site", "age", "sex", "cat2", "n_cases", "n_cases_tot", 
-        "fte_clinicians", "days_open", "n_psych")
+        "fte_clinicians", "days_open", "n_psych", "cons_rate_mh")
       mh4p <- mh4[complete.cases(mh4[, x]), ]
-          
+
+  #...................................      
+  ## Visualise correlation between consultation rate and category share
+    
+    # Prepare dataset
+    df <- mh4r  
+    df$cons_rate_mh_cat <- cut(df$cons_rate_mh, breaks = c(0,5,10,15,20,1000),
+      include.lowest = T, right = F, labels = c("<5.0", "5.0 to 9.9",
+        "10.0 to 14.9", "15.0 to 19.9", ">=20.0"))
+    df <- aggregate(list(n_cases = df$n_cases),
+      by = df[, c("cons_rate_mh_cat", "cat2")], FUN = sum)
+                  
+    # Plot
+    pl <- ggplot(df, aes(x = cons_rate_mh_cat, y = n_cases,
+      fill = cat2)) +
+      geom_bar(stat = "identity", position = "fill", colour = "black",
+        linewidth = 0.5) +
+      theme_bw() +
+      scale_x_discrete("MH-related consultation rate per 100 person-years",
+        expand = c(0,0)) +
+      scale_y_continuous("proportion of all MH-related consultations",
+        labels = percent, breaks = seq(0, 1, 0.2), expand = c(0,0)) +
+      scale_fill_viridis_d("") +
+      theme(legend.position = "bottom") +
+      guides(fill = guide_legend(nrow = 3))      
+    ggsave(paste0(dir_path, "out/03_cat2_share_vs_cons_rate.png"), 
+      dpi = "print", units = "cm", width = 20, height = 10*(hw-0.05))
+    
+      
+  #...................................      
+  ## Fit multivariate exploratory model
+    
     # Categorise and rescale predictors
     mh4p$fte_clinicians_cat <- cut(mh4p$fte_clinicians, c(0, 2, 5, 10, 100),
       labels = c("<2.0", "2.0 to 4.9", "5.0 to 9.9", ">= 10.0"),
       include.lowest = T, right = F)
     table(mh4p$fte_clinicians_cat)
+    mh4p$cons_rate_mh_cat <- cut(mh4p$cons_rate_mh, 
+      breaks = c(0,5,10,15,20,1000),
+      include.lowest = T, right = F, labels = c("<5.0", "5.0 to 9.9",
+        "10.0 to 14.9", "15.0 to 19.9", ">=20.0"))
+    table(mh4p$cons_rate_mh_cat)
     mh4p$days_open_sc <- scale(mh4p$days_open, center = F, scale = T)
     mh4p$country <- as.character(mh4p$country)
     mh4p$site <- as.character(mh4p$site)
@@ -360,11 +399,16 @@
     # Fit model of consultation proportion (method of weights - checked, OK!)
         # nested random effects require too much computational power, so
         # just kept country
-    mcp <- mblogit(cat2 ~ fte_clinicians_cat + days_open_sc + n_psych, 
+    mcp <- mblogit(cat2 ~ fte_clinicians_cat + days_open_sc + n_psych +
+        cons_rate_mh_cat, 
       data = mh4p, weights = n_cases, random = ~1|country)
     x <- mtable(mcp, coef.style = "horizontal", summary.stats = 
         c("N", "AIC", "Deviance"))
     x$mcp$coef[,1,] <- exp(x$mcp$coef[,1,])
     write_html(x, paste0(dir_path, "out/03_mblogit_cat2.html"))
-    
+
+        
+#...............................................................................  
+### ENDS
+#...............................................................................
             

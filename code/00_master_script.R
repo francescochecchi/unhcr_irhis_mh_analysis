@@ -84,6 +84,9 @@
   ## Visualising patterns
   source(paste0(dir_path, "code/02_visualise_patterns.r") )
 
+  #...................................      
+  ## Exploring factors associated with MH morbidity
+  source(paste0(dir_path, "code/03_explore_factors.r") )
                     
 
 #...............................................................................  

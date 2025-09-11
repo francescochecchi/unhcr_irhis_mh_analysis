@@ -26,7 +26,6 @@
       ggrepel,       # Improve labelling of plots
       glmmTMB,       # Fit mixed models
       gtools,        # Assist various programming tasks
-      lme4,          # Fit mixed models
       lubridate,     # Work with dates and times
       MASS,          # Implement various statistical methods
       mclogit,       # Multinomial logit models
@@ -35,9 +34,7 @@
       parameters,    # Extract model output
       readxl,        # Read Excel files
       scales,        # Scale and format data for visualisation
-      sf,            # Work with shape files and maps
       tidyverse,     # Tidyverse suite of packages
-      tmap,          # Produce maps and work with GIS data
       viridis,       # Colour-blind palette
       zoo)           # Compute running means
 
@@ -85,7 +82,7 @@
   source(paste0(dir_path, "code/02_visualise_patterns.r") )
 
   #...................................      
-  ## Exploring factors associated with MH morbidity
+  ## Exploring factors associated with mental health-related morbidity
   source(paste0(dir_path, "code/03_explore_factors.r") )
                     
 

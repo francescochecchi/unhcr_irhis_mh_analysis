@@ -407,7 +407,35 @@
     x$mcp$coef[,1,] <- exp(x$mcp$coef[,1,])
     write_html(x, paste0(dir_path, "out/03_mblogit_cat2.html"))
 
-        
+
+  #...................................      
+  ## Draw conceptual diagram for discussion
+    
+    # Prepare dataset
+    df <- data.frame(
+      setting = rep(c("pre-displacement", "displacement",
+      "seen at outpatient level"), 2),
+      cause = c(rep("depression", 3), rep("all other causes", 3)),
+      cases = c(16, 31, 4, 33, 44, 13)
+    )
+    df$setting <- factor(df$setting, levels = c("pre-displacement", 
+      "displacement", "seen at outpatient level"))
+    df$cause <- factor(df$cause, levels = c("depression", "all other causes"))
+    
+    # Plot
+    ggplot(df, aes(x = setting, y = cases, fill = cause)) +
+      geom_flow(aes(alluvium = cause), curve_type = "linear",
+        alpha = 0.25, width = 0.5, colour = "black") +
+      geom_col(width = 0.5, colour = "black", alpha = 0.75) +
+      theme_bw() +
+      theme(legend.position = "bottom") +
+      scale_fill_manual(values = palette_gen[c(14, 7)]) +
+      scale_x_discrete(expand = expansion(add = c(0.4,0.4))) +
+      scale_y_continuous("cases per 100 population", 
+        expand = expansion(add = c(0, 5)))
+    ggsave(paste0(dir_path, "out/03_conceptual_diagram.png"), 
+      dpi = "print", units = "cm", width = 15, height = 6*(hw-0.05))
+
 #...............................................................................  
 ### ENDS
 #...............................................................................

@@ -42,24 +42,24 @@
   ## Read and clean population 2024-2025 dataset provided by UNHCR
 
     # Read
-    pop0405 <- read.csv(paste0(dir_path, 
+    pop2425 <- read.csv(paste0(dir_path, 
       "in/UNHCR_Refugees_pop_Jan_2024-June_2025.csv"))
     
     # Rename columns
-    colnames(pop0405) <- c("region", "country", "site", "pop", "year")
+    colnames(pop2425) <- c("region", "country", "site", "pop", "year")
 
     # Rename countries that don't match with mh dataset
-    pop0405[which(pop0405$country == "Democratic Republic of the Congo (DRC)"),
+    pop2425[which(pop2425$country == "Democratic Republic of the Congo (DRC)"),
       "country"] <- "Democratic Republic of the Congo"
-    pop0405[which(pop0405$country == "Tanzania"),
+    pop2425[which(pop2425$country == "Tanzania"),
       "country"] <- "United Republic of Tanzania"
-    pop0405[which(pop0405$country == "Republic of the Congo"),
+    pop2425[which(pop2425$country == "Republic of the Congo"),
       "country"] <- "Congo"
     
     # Unique sites
-    sites_pop0405 <- unique(pop0405[, c("country", "site")])
-    sites_pop0405 <- sites_pop0405[
-      order(sites_pop0405$country, sites_pop0405$site), ]
+    sites_pop2425 <- unique(pop2425[, c("country", "site")])
+    sites_pop2425 <- sites_pop2425[
+      order(sites_pop2425$country, sites_pop2425$site), ]
     
     
 #...............................................................................
@@ -155,11 +155,11 @@
   ## Link site names with site names in UNHCR-provided population dataset
         
     # Check whether all sites in the UNHCR population dataset appear on mh sites
-    sites[which(! sites$site %in% sites_pop0405$site), c("country", "site")]
+    sites[which(! sites$site %in% sites_pop2425$site), c("country", "site")]
     
     # Set non-matching sites to NA (not present in UNHCR population dataset)
-    sites$site_pop0405 <- sites$site
-    sites[which(! sites$site %in% sites_pop0405$site), "site_pop0405"] <- NA
+    sites$site_pop2425 <- sites$site
+    sites[which(! sites$site %in% sites_pop2425$site), "site_pop2425"] <- NA
       
 
   #...................................      
@@ -434,7 +434,7 @@
     )
     x$pt_type <- ifelse(x$sex == "both", "national", "refugee")
     x <- merge(x, sites[, c("region", "country", "site", "site_demog",
-      "site_pop0405")], by = "site", all.x = T)
+      "site_pop2425")], by = "site", all.x = T)
     x1 <- unique(icd[, c("cat1", "cat2")])
     colnames(x1) <- c("cat1", "cat2")
     x <- merge(x, x1, by = "cat1", all.x = T)
@@ -446,7 +446,7 @@
     mh1 <- merge(x, mh1, by = c("region", "country", "site", "mmyy", "cat1",
       "pt_type", "age", "sex"), all.x = T)
     mh1[which(is.na(mh1$n_cases)), "n_cases"] <- 0
-    mh1 <- mh1[, c("region", "country", "site", "site_demog", "site_pop0405",
+    mh1 <- mh1[, c("region", "country", "site", "site_demog", "site_pop2425",
       "mmyy", "pt_type", "cat1", "cat2", "age", "sex", "n_cases")]
     
     # Aggregate by cat2
@@ -454,21 +454,21 @@
       by = mh1[, c("region", "country", "site",
         "mmyy", "pt_type", "cat2", "age", "sex")], FUN = "sum", na.rm = TRUE)
     mh2 <- merge(mh2, sites[, c("region", "country", "site", "site_demog",
-      "site_pop0405")], by = c("region", "country", "site"), all.x = T)
+      "site_pop2425")], by = c("region", "country", "site"), all.x = T)
     
     # Aggregate by cat2 across all ages
     mh2a <- aggregate(list(n_cases = mh2$n_cases), 
       by = mh2[, c("region", "country", "site",
         "mmyy", "pt_type", "cat2", "sex")], FUN = "sum", na.rm = TRUE)
     mh2a <- merge(mh2a, sites[, c("region", "country", "site", "site_demog",
-      "site_pop0405")], by = c("region", "country", "site"), all.x = T)
+      "site_pop2425")], by = c("region", "country", "site"), all.x = T)
                
     # Aggregate by cat2 across all ages and sexes
     mh2b <- aggregate(list(n_cases = mh2a$n_cases), 
       by = mh2a[, c("region", "country", "site",
         "mmyy", "pt_type", "cat2")], FUN = "sum", na.rm = T)
     mh2b <- merge(mh2b, sites[, c("region", "country", "site", "site_demog",
-      "site_pop0405")], by = c("region", "country", "site"), all.x = T)
+      "site_pop2425")], by = c("region", "country", "site"), all.x = T)
     
   #...................................      
   ## Merge in consultations dataset
@@ -582,15 +582,15 @@
       mh2b <- merge(mh2b, x, by =c("country", "site_demog", "year"), all.x = T)
 
     # Population provided by UNHCR
-    colnames(pop0405) <- c("region", "country", "site_pop0405", "pop_0405", 
+    colnames(pop2425) <- c("region", "country", "site_pop2425", "pop_2425", 
       "year")
-    mh1 <- merge(mh1, pop0405, by = c("region", "country", "site_pop0405", 
+    mh1 <- merge(mh1, pop2425, by = c("region", "country", "site_pop2425", 
       "year"), all.x = T)
-    mh2 <- merge(mh2, pop0405, by = c("region", "country", "site_pop0405", 
+    mh2 <- merge(mh2, pop2425, by = c("region", "country", "site_pop2425", 
       "year"), all.x = T)
-    mh2a <- merge(mh2a, pop0405, by = c("region", "country", "site_pop0405", 
+    mh2a <- merge(mh2a, pop2425, by = c("region", "country", "site_pop2425", 
       "year"), all.x = T)
-    mh2b <- merge(mh2b, pop0405, by = c("region", "country", "site_pop0405", 
+    mh2b <- merge(mh2b, pop2425, by = c("region", "country", "site_pop2425", 
       "year"), all.x = T)
 
     
@@ -599,8 +599,8 @@
     
     # Compare two population sources
     df <- unique(mh2b[, c("country", "country_iso", "site", "year", "pop_demog",
-      "pop_0405")])
-    p1 <- ggplot(df, aes(x = pop_demog, pop_0405)) +
+      "pop_2425")])
+    p1 <- ggplot(df, aes(x = pop_demog, pop_2425)) +
       geom_point(alpha = 0.50, fill = palette_gen[8], colour = palette_gen[12],
         stroke = 1) +
       theme_bw() +
@@ -670,11 +670,11 @@
 
     
 #...............................................................................
-### Reading and merging WHO Global Health Observatory mental health data
+### Reading and merging WHO Global Health Observatory / UNDP HDI data
 #...............................................................................
 
   #...................................      
-  ## Read and clean WHO data, choosing most recent value if multiple
+  ## Read, clean and merge WHO data, choosing most recent value if multiple
     
     # Psychiatrists
     who_psych <- read.csv(paste0(dir_path, "in/who_mh_psychiatrists.csv"))
@@ -692,9 +692,6 @@
     who_exp <- who_exp[, c("SpatialDimensionValueCode", "TimeDim", "Value")]
     colnames(who_exp) <- c("country_iso", "year_exp", "exp_mh")
     
-  #...................................      
-  ## Merge WHO datasets
-    
     # Merge
     who <- merge(who_cons, who_exp, by = "country_iso", all = T)
     who <- merge(who, who_psych, by = "country_iso", all = T)    
@@ -706,7 +703,29 @@
     # Select only countries in mh dataset
     x <- unique(mh1$country_iso)
     who <- subset(who, country_iso %in% x)
-        
+
+  #...................................      
+  ## Read, clean and select UNDP Human Development Index data
+    
+    # Read HDI dataset (2023)
+    hdi <- as.data.frame(read_xlsx(paste0(dir_path, 
+      "in/HDR25_Statistical_Annex_HDI_Table.xlsx")))
+    hdi <- hdi[-(1:7), 2:3]
+    colnames(hdi) <- c("country", "hdi")
+    hdi <- na.omit(hdi)
+            
+    # Harmonise country names
+    x <- unique(mh1$country)
+    x[which(! x %in% unique(hdi$country))]
+    hdi[which(hdi$country == "Congo (Democratic Republic of the)"), "country"]<-
+      "Democratic Republic of the Congo"
+    hdi[which(hdi$country == "Tanzania (United Republic of)"), "country"]<-
+      "United Republic of Tanzania"
+    hdi$hdi <- as.numeric(hdi$hdi)
+    
+    # Select only countries in the UNHCR dataset
+    hdi <- subset(hdi, country %in% x)
+              
 #...............................................................................  
 ### ENDS
 #...............................................................................

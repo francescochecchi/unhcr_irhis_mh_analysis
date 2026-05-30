@@ -469,7 +469,7 @@
     
     # MH consultation rates by age and sex, for each site
     df <- subset(mh2, pt_type == "refugee")
-    df$pop_agesex <- df$pop_0405 * df$prop_agesex
+    df$pop_agesex <- df$pop_2425 * df$prop_agesex
     x <- unique(df[which(! is.na(df$pop_agesex)),
       c("region", "country", "site", "mmyy", "age", "sex", "pop_agesex")])
     df <- aggregate(list(n_cases = df$n_cases), 
@@ -498,7 +498,7 @@
 
     # MH and all-cause consultation rates, by sex, for each site
     df <- subset(mh2a, pt_type == "refugee")
-    df$pop_sex <- df$pop_0405 * df$prop_sex
+    df$pop_sex <- df$pop_2425 * df$prop_sex
     x <- unique(df[, c("region", "country", "site", "mmyy", "sex", 
       "n_cases_all", "pop_sex")])
     df <- aggregate(list(n_cases = df$n_cases), 
@@ -541,7 +541,7 @@
         
     # MH and all-cause consultation rates, for each site
     df <- subset(mh2b, pt_type == "refugee")
-    df$pop <- df$pop_0405
+    df$pop <- df$pop_2425
     x <- unique(df[, c("region", "country", "site", "mmyy", 
       "n_cases_all", "pop")])
     df <- aggregate(list(n_cases = df$n_cases), 
@@ -600,7 +600,7 @@
         shape = 95) +
       scale_x_discrete("country") +
       scale_y_continuous(
-        "mental health-related consultations per 100 person-years",
+        "MHNSU-related consultations per 100 person-years",
         trans = "sqrt", breaks = c(0, 5, 20, 50, 100))+
       scale_colour_viridis_d() +
       theme_bw() +
@@ -675,7 +675,7 @@
         position = position_dodge2(width = 0.75)) +
       scale_x_discrete("country") +
       scale_y_continuous(
-        "mental health-related consultations per 100 person-years",
+        "MHNSU-related consultations per 100 person-years",
         trans = "sqrt", breaks = c(0, 0.2, 0.5, 1, 2, 5, 10, 20), 
         expand = expansion(add = c(0,0.1)))+
       scale_fill_viridis_d() +
@@ -725,7 +725,7 @@
         collapse = "\n" )    
     df$region <- gsub("South East\nAsia", "SE\nAsia", df$region)    
     df$ratio <- scales::label_number(accuracy = 0.1)(df$ratio)
-    df$cause <- ifelse(df$cause == "mh", "mental health-related", "all causes")
+    df$cause <- ifelse(df$cause == "mh", "MHNSU-related", "all causes")
     
     # Plot
     pl <- ggplot(df, aes(x = country, y = prop, fill = region)) +
@@ -775,7 +775,7 @@
         collapse = "\n" )    
     df$region <- gsub("South East\nAsia", "SE\nAsia", df$region)    
     df$ratio <- scales::label_number(accuracy = 0.1)(df$ratio)
-    df$cause <- ifelse(df$cause == "mh", "mental health-related", "all causes")
+    df$cause <- ifelse(df$cause == "mh", "MHNSU-related", "all causes")
     
     # Plot        
     pl <- ggplot(df, aes(x = country, y = prop, fill = region)) +

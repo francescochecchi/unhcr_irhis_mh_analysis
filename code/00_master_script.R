@@ -82,8 +82,8 @@
   source(paste0(dir_path, "code/02_visualise_patterns.r") )
 
   #...................................      
-  ## Exploring factors associated with mental health-related morbidity
-  source(paste0(dir_path, "code/03_explore_factors.r") )
+  ## Model association of clinician availability with MHNSU-related morbidity
+  source(paste0(dir_path, "code/03_fit_models.r") )
                     
 
 #...............................................................................  

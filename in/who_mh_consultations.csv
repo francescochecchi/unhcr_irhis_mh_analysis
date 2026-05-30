@@ -1,0 +1,90 @@
+IndicatorCode,Indicator,ValueType,ParentLocationCode,ParentLocation,Location type,SpatialDimValueCode,Location,Period type,Period,IsLatestYear,Dim1 type,Dim1,Dim1ValueCode,Dim2 type,Dim2,Dim2ValueCode,Dim3 type,Dim3,Dim3ValueCode,DataSourceDimValueCode,DataSource,FactValueNumericPrefix,FactValueNumeric,FactValueUoM,FactValueNumericLowPrefix,FactValueNumericLow,FactValueNumericHighPrefix,FactValueNumericHigh,Value,FactValueTranslationID,FactComments,Language,DateModified
+MH_20,"Outpatient visits (per 100,000)",numeric,AFR,Africa,Country,BEN,Benin,Year,2014,true,,,,,,,,,,,,,0,,,,,,0.000,,,EN,2015-07-06T23:00:00.000Z
+MH_20,"Outpatient visits (per 100,000)",numeric,AFR,Africa,Country,BWA,Botswana,Year,2014,true,,,,,,,,,,,,,0,,,,,,0.000,,,EN,2015-07-06T23:00:00.000Z
+MH_20,"Outpatient visits (per 100,000)",numeric,AFR,Africa,Country,BFA,Burkina Faso,Year,2014,true,,,,,,,,,,,,,0,,,,,,0.000,,,EN,2015-07-06T23:00:00.000Z
+MH_20,"Outpatient visits (per 100,000)",numeric,AFR,Africa,Country,CIV,Cote d'Ivoire,Year,2014,true,,,,,,,,,,,,,0,,,,,,0.000,,,EN,2015-07-06T23:00:00.000Z
+MH_20,"Outpatient visits (per 100,000)",numeric,AFR,Africa,Country,SWZ,Eswatini,Year,2014,true,,,,,,,,,,,,,0,,,,,,0.000,,,EN,2015-07-06T23:00:00.000Z
+MH_20,"Outpatient visits (per 100,000)",numeric,AMR,Americas,Country,HTI,Haiti,Year,2014,true,,,,,,,,,,,,,0,,,,,,0.000,,,EN,2015-07-06T23:00:00.000Z
+MH_20,"Outpatient visits (per 100,000)",numeric,EUR,Europe,Country,KGZ,Kyrgyzstan,Year,2014,true,,,,,,,,,,,,,0,,,,,,0.000,,,EN,2015-07-06T23:00:00.000Z
+MH_20,"Outpatient visits (per 100,000)",numeric,AFR,Africa,Country,NAM,Namibia,Year,2014,true,,,,,,,,,,,,,0,,,,,,0.000,,,EN,2015-07-06T23:00:00.000Z
+MH_20,"Outpatient visits (per 100,000)",numeric,EUR,Europe,Country,ROU,Romania,Year,2014,true,,,,,,,,,,,,,0,,,,,,0.000,,,EN,2015-07-06T23:00:00.000Z
+MH_20,"Outpatient visits (per 100,000)",numeric,WPR,Western Pacific,Country,LAO,Lao People's Democratic Republic,Year,2014,true,,,,,,,,,,,,,0.044,,,,,,0.044,,,EN,2015-07-06T23:00:00.000Z
+MH_20,"Outpatient visits (per 100,000)",numeric,AFR,Africa,Country,BDI,Burundi,Year,2014,true,,,,,,,,,,,,,0.34,,,,,,0.343,,,EN,2015-07-06T23:00:00.000Z
+MH_20,"Outpatient visits (per 100,000)",numeric,AMR,Americas,Country,PRY,Paraguay,Year,2014,true,,,,,,,,,,,,,1.14,,,,,,1.136,,,EN,2015-07-06T23:00:00.000Z
+MH_20,"Outpatient visits (per 100,000)",numeric,AMR,Americas,Country,GTM,Guatemala,Year,2014,true,,,,,,,,,,,,,1051,,,,,,1051.476,,,EN,2015-07-06T23:00:00.000Z
+MH_20,"Outpatient visits (per 100,000)",numeric,AMR,Americas,Country,BRA,Brazil,Year,2014,true,,,,,,,,,,,,,10516,,,,,,10516.498,,,EN,2015-07-06T23:00:00.000Z
+MH_20,"Outpatient visits (per 100,000)",numeric,SEAR,South-East Asia,Country,MMR,Myanmar,Year,2014,true,,,,,,,,,,,,,108.2,,,,,,108.204,,,EN,2015-07-06T23:00:00.000Z
+MH_20,"Outpatient visits (per 100,000)",numeric,AFR,Africa,Country,RWA,Rwanda,Year,2014,true,,,,,,,,,,,,,1089,,,,,,1089.053,,,EN,2015-07-06T23:00:00.000Z
+MH_20,"Outpatient visits (per 100,000)",numeric,EUR,Europe,Country,MDA,Republic of Moldova,Year,2014,true,,,,,,,,,,,,,1098,,,,,,1098.436,,,EN,2015-07-06T23:00:00.000Z
+MH_20,"Outpatient visits (per 100,000)",numeric,EUR,Europe,Country,ISL,Iceland,Year,2014,true,,,,,,,,,,,,,11001,,,,,,11000.880,,,EN,2015-07-06T23:00:00.000Z
+MH_20,"Outpatient visits (per 100,000)",numeric,AMR,Americas,Country,PAN,Panama,Year,2014,true,,,,,,,,,,,,,1165,,,,,,1164.845,,,EN,2015-07-06T23:00:00.000Z
+MH_20,"Outpatient visits (per 100,000)",numeric,EMR,Eastern Mediterranean,Country,KWT,Kuwait,Year,2014,true,,,,,,,,,,,,,12203,,,,,,12203.204,,,EN,2015-07-06T23:00:00.000Z
+MH_20,"Outpatient visits (per 100,000)",numeric,EUR,Europe,Country,TJK,Tajikistan,Year,2014,true,,,,,,,,,,,,,1237,,,,,,1236.778,,,EN,2015-07-06T23:00:00.000Z
+MH_20,"Outpatient visits (per 100,000)",numeric,AFR,Africa,Country,TGO,Togo,Year,2014,true,,,,,,,,,,,,,13.99,,,,,,13.985,,,EN,2015-07-06T23:00:00.000Z
+MH_20,"Outpatient visits (per 100,000)",numeric,EUR,Europe,Country,HRV,Croatia,Year,2014,true,,,,,,,,,,,,,13165,,,,,,13165.290,,,EN,2015-07-06T23:00:00.000Z
+MH_20,"Outpatient visits (per 100,000)",numeric,AFR,Africa,Country,ZMB,Zambia,Year,2014,true,,,,,,,,,,,,,14.58,,,,,,14.580,,,EN,2015-07-06T23:00:00.000Z
+MH_20,"Outpatient visits (per 100,000)",numeric,AMR,Americas,Country,DMA,Dominica,Year,2014,true,,,,,,,,,,,,,143.8,,,,,,143.766,,,EN,2015-07-06T23:00:00.000Z
+MH_20,"Outpatient visits (per 100,000)",numeric,EUR,Europe,Country,ALB,Albania,Year,2014,true,,,,,,,,,,,,,1433,,,,,,1432.533,,,EN,2015-07-06T23:00:00.000Z
+MH_20,"Outpatient visits (per 100,000)",numeric,EUR,Europe,Country,FRA,France,Year,2014,true,,,,,,,,,,,,,14820,,,,,,14820.252,,,EN,2015-07-06T23:00:00.000Z
+MH_20,"Outpatient visits (per 100,000)",numeric,AMR,Americas,Country,DOM,Dominican Republic,Year,2014,true,,,,,,,,,,,,,1520,,,,,,1520.255,,,EN,2015-07-06T23:00:00.000Z
+MH_20,"Outpatient visits (per 100,000)",numeric,SEAR,South-East Asia,Country,MDV,Maldives,Year,2014,true,,,,,,,,,,,,,1528,,,,,,1528.274,,,EN,2015-07-06T23:00:00.000Z
+MH_20,"Outpatient visits (per 100,000)",numeric,EUR,Europe,Country,DNK,Denmark,Year,2014,true,,,,,,,,,,,,,15744,,,,,,15743.579,,,EN,2015-07-06T23:00:00.000Z
+MH_20,"Outpatient visits (per 100,000)",numeric,EMR,Eastern Mediterranean,Country,LBY,Libya,Year,2014,true,,,,,,,,,,,,,1619,,,,,,1618.771,,,EN,2015-07-06T23:00:00.000Z
+MH_20,"Outpatient visits (per 100,000)",numeric,WPR,Western Pacific,Country,WSM,Samoa,Year,2014,true,,,,,,,,,,,,,166.8,,,,,,166.813,,,EN,2015-07-06T23:00:00.000Z
+MH_20,"Outpatient visits (per 100,000)",numeric,AFR,Africa,Country,LBR,Liberia,Year,2014,true,,,,,,,,,,,,,167,,,,,,166.982,,,EN,2015-07-06T23:00:00.000Z
+MH_20,"Outpatient visits (per 100,000)",numeric,EUR,Europe,Country,UZB,Uzbekistan,Year,2014,true,,,,,,,,,,,,,17119,,,,,,17119.293,,,EN,2015-07-06T23:00:00.000Z
+MH_20,"Outpatient visits (per 100,000)",numeric,EUR,Europe,Country,SMR,San Marino,Year,2014,true,,,,,,,,,,,,,17704,,,,,,17703.954,,,EN,2015-07-06T23:00:00.000Z
+MH_20,"Outpatient visits (per 100,000)",numeric,EUR,Europe,Country,EST,Estonia,Year,2014,true,,,,,,,,,,,,,19967,,,,,,19966.520,,,EN,2015-07-06T23:00:00.000Z
+MH_20,"Outpatient visits (per 100,000)",numeric,EUR,Europe,Country,GRC,Greece,Year,2014,true,,,,,,,,,,,,,20.67,,,,,,20.668,,,EN,2015-07-06T23:00:00.000Z
+MH_20,"Outpatient visits (per 100,000)",numeric,AMR,Americas,Country,SLV,El Salvador,Year,2014,true,,,,,,,,,,,,,203.9,,,,,,203.924,,,EN,2015-07-06T23:00:00.000Z
+MH_20,"Outpatient visits (per 100,000)",numeric,AMR,Americas,Country,MEX,Mexico,Year,2014,true,,,,,,,,,,,,,2171,,,,,,2170.531,,,EN,2015-07-06T23:00:00.000Z
+MH_20,"Outpatient visits (per 100,000)",numeric,WPR,Western Pacific,Country,BRN,Brunei Darussalam,Year,2014,true,,,,,,,,,,,,,2186,,,,,,2185.692,,,EN,2015-07-06T23:00:00.000Z
+MH_20,"Outpatient visits (per 100,000)",numeric,AMR,Americas,Country,CUB,Cuba,Year,2014,true,,,,,,,,,,,,,2203,,,,,,2202.539,,,EN,2015-07-06T23:00:00.000Z
+MH_20,"Outpatient visits (per 100,000)",numeric,SEAR,South-East Asia,Country,BGD,Bangladesh,Year,2014,true,,,,,,,,,,,,,231.7,,,,,,231.654,,,EN,2015-07-06T23:00:00.000Z
+MH_20,"Outpatient visits (per 100,000)",numeric,WPR,Western Pacific,Country,NRU,Nauru,Year,2014,true,,,,,,,,,,,,,2321,,,,,,2320.968,,,EN,2015-07-06T23:00:00.000Z
+MH_20,"Outpatient visits (per 100,000)",numeric,EUR,Europe,Country,HUN,Hungary,Year,2014,true,,,,,,,,,,,,,23343,,,,,,23343.085,,,EN,2015-07-06T23:00:00.000Z
+MH_20,"Outpatient visits (per 100,000)",numeric,WPR,Western Pacific,Country,AUS,Australia,Year,2014,true,,,,,,,,,,,,,23445,,,,,,23445.061,,,EN,2015-07-06T23:00:00.000Z
+MH_20,"Outpatient visits (per 100,000)",numeric,AFR,Africa,Country,SYC,Seychelles,Year,2014,true,,,,,,,,,,,,,235.8,,,,,,235.776,,,EN,2015-07-06T23:00:00.000Z
+MH_20,"Outpatient visits (per 100,000)",numeric,EUR,Europe,Country,LTU,Lithuania,Year,2014,true,,,,,,,,,,,,,25185,,,,,,25185.205,,,EN,2015-07-06T23:00:00.000Z
+MH_20,"Outpatient visits (per 100,000)",numeric,WPR,Western Pacific,Country,JPN,Japan,Year,2014,true,,,,,,,,,,,,,25264,,,,,,25263.960,,,EN,2015-07-06T23:00:00.000Z
+MH_20,"Outpatient visits (per 100,000)",numeric,EMR,Eastern Mediterranean,Country,OMN,Oman,Year,2014,true,,,,,,,,,,,,,2581,,,,,,2580.650,,,EN,2015-07-06T23:00:00.000Z
+MH_20,"Outpatient visits (per 100,000)",numeric,EUR,Europe,Country,CZE,Czechia,Year,2014,true,,,,,,,,,,,,,26386,,,,,,26385.668,,,EN,2015-07-06T23:00:00.000Z
+MH_20,"Outpatient visits (per 100,000)",numeric,EMR,Eastern Mediterranean,Country,IRN,Iran (Islamic Republic of),Year,2014,true,,,,,,,,,,,,,2647,,,,,,2647.119,,,EN,2015-07-06T23:00:00.000Z
+MH_20,"Outpatient visits (per 100,000)",numeric,AMR,Americas,Country,HND,Honduras,Year,2014,true,,,,,,,,,,,,,279.4,,,,,,279.357,,,EN,2015-07-06T23:00:00.000Z
+MH_20,"Outpatient visits (per 100,000)",numeric,EUR,Europe,Country,RUS,Russian Federation,Year,2014,true,,,,,,,,,,,,,287,,,,,,287.040,,,EN,2015-07-06T23:00:00.000Z
+MH_20,"Outpatient visits (per 100,000)",numeric,SEAR,South-East Asia,Country,BTN,Bhutan,Year,2014,true,,,,,,,,,,,,,320.3,,,,,,320.291,,,EN,2015-07-06T23:00:00.000Z
+MH_20,"Outpatient visits (per 100,000)",numeric,EUR,Europe,Country,FIN,Finland,Year,2014,true,,,,,,,,,,,,,32336,,,,,,32336.082,,,EN,2015-07-06T23:00:00.000Z
+MH_20,"Outpatient visits (per 100,000)",numeric,WPR,Western Pacific,Country,KHM,Cambodia,Year,2014,true,,,,,,,,,,,,,326.5,,,,,,326.461,,,EN,2015-07-06T23:00:00.000Z
+MH_20,"Outpatient visits (per 100,000)",numeric,EUR,Europe,Country,GBR,United Kingdom of Great Britain and Northern Ireland,Year,2014,true,,,,,,,,,,,,,3335,,,,,,3335.077,,,EN,2015-07-06T23:00:00.000Z
+MH_20,"Outpatient visits (per 100,000)",numeric,AMR,Americas,Country,BLZ,Belize,Year,2014,true,,,,,,,,,,,,,3525,,,,,,3524.567,,,EN,2015-07-06T23:00:00.000Z
+MH_20,"Outpatient visits (per 100,000)",numeric,EUR,Europe,Country,GEO,Georgia,Year,2014,true,,,,,,,,,,,,,3531,,,,,,3530.801,,,EN,2015-07-06T23:00:00.000Z
+MH_20,"Outpatient visits (per 100,000)",numeric,EMR,Eastern Mediterranean,Country,IRQ,Iraq,Year,2014,true,,,,,,,,,,,,,368.6,,,,,,368.621,,,EN,2015-07-06T23:00:00.000Z
+MH_20,"Outpatient visits (per 100,000)",numeric,AFR,Africa,Country,GHA,Ghana,Year,2014,true,,,,,,,,,,,,,372.5,,,,,,372.511,,,EN,2015-07-06T23:00:00.000Z
+MH_20,"Outpatient visits (per 100,000)",numeric,EMR,Eastern Mediterranean,Country,PAK,Pakistan,Year,2014,true,,,,,,,,,,,,,372.7,,,,,,372.705,,,EN,2015-07-06T23:00:00.000Z
+MH_20,"Outpatient visits (per 100,000)",numeric,EMR,Eastern Mediterranean,Country,BHR,Bahrain,Year,2014,true,,,,,,,,,,,,,3749,,,,,,3748.652,,,EN,2015-07-06T23:00:00.000Z
+MH_20,"Outpatient visits (per 100,000)",numeric,AMR,Americas,Country,TTO,Trinidad and Tobago,Year,2014,true,,,,,,,,,,,,,3975,,,,,,3974.903,,,EN,2015-07-06T23:00:00.000Z
+MH_20,"Outpatient visits (per 100,000)",numeric,AMR,Americas,Country,PER,Peru,Year,2014,true,,,,,,,,,,,,,4.97,,,,,,4.966,,,EN,2015-07-06T23:00:00.000Z
+MH_20,"Outpatient visits (per 100,000)",numeric,WPR,Western Pacific,Country,SGP,Singapore,Year,2014,true,,,,,,,,,,,,,4294,,,,,,4293.631,,,EN,2015-07-06T23:00:00.000Z
+MH_20,"Outpatient visits (per 100,000)",numeric,EMR,Eastern Mediterranean,Country,MAR,Morocco,Year,2014,true,,,,,,,,,,,,,435.5,,,,,,435.507,,,EN,2015-07-06T23:00:00.000Z
+MH_20,"Outpatient visits (per 100,000)",numeric,EUR,Europe,Country,NOR,Norway,Year,2014,true,,,,,,,,,,,,,44208,,,,,,44208.151,,,EN,2015-07-06T23:00:00.000Z
+MH_20,"Outpatient visits (per 100,000)",numeric,AMR,Americas,Country,GRD,Grenada,Year,2014,true,,,,,,,,,,,,,4643,,,,,,4643.287,,,EN,2015-07-06T23:00:00.000Z
+MH_20,"Outpatient visits (per 100,000)",numeric,EMR,Eastern Mediterranean,Country,EGY,Egypt,Year,2014,true,,,,,,,,,,,,,484.8,,,,,,484.826,,,EN,2015-07-06T23:00:00.000Z
+MH_20,"Outpatient visits (per 100,000)",numeric,SEAR,South-East Asia,Country,TLS,Timor-Leste,Year,2014,true,,,,,,,,,,,,,492.1,,,,,,492.088,,,EN,2015-07-06T23:00:00.000Z
+MH_20,"Outpatient visits (per 100,000)",numeric,EUR,Europe,Country,CYP,Cyprus,Year,2014,true,,,,,,,,,,,,,5.79,,,,,,5.793,,,EN,2015-07-06T23:00:00.000Z
+MH_20,"Outpatient visits (per 100,000)",numeric,EUR,Europe,Country,SVN,Slovenia,Year,2014,true,,,,,,,,,,,,,512.9,,,,,,512.914,,,EN,2015-07-06T23:00:00.000Z
+MH_20,"Outpatient visits (per 100,000)",numeric,AFR,Africa,Country,TZA,United Republic of Tanzania,Year,2014,true,,,,,,,,,,,,,54.95,,,,,,54.952,,,EN,2015-07-06T23:00:00.000Z
+MH_20,"Outpatient visits (per 100,000)",numeric,SEAR,South-East Asia,Country,THA,Thailand,Year,2014,true,,,,,,,,,,,,,5435,,,,,,5434.673,,,EN,2015-07-06T23:00:00.000Z
+MH_20,"Outpatient visits (per 100,000)",numeric,AMR,Americas,Country,JAM,Jamaica,Year,2014,true,,,,,,,,,,,,,5547,,,,,,5547.022,,,EN,2015-07-06T23:00:00.000Z
+MH_20,"Outpatient visits (per 100,000)",numeric,AFR,Africa,Country,ZWE,Zimbabwe,Year,2014,true,,,,,,,,,,,,,572.8,,,,,,572.814,,,EN,2015-07-06T23:00:00.000Z
+MH_20,"Outpatient visits (per 100,000)",numeric,AFR,Africa,Country,STP,Sao Tome and Principe,Year,2014,true,,,,,,,,,,,,,582.2,,,,,,582.159,,,EN,2015-07-06T23:00:00.000Z
+MH_20,"Outpatient visits (per 100,000)",numeric,EUR,Europe,Country,PRT,Portugal,Year,2014,true,,,,,,,,,,,,,6472,,,,,,6471.502,,,EN,2015-07-06T23:00:00.000Z
+MH_20,"Outpatient visits (per 100,000)",numeric,EUR,Europe,Country,LVA,Latvia,Year,2014,true,,,,,,,,,,,,,6676,,,,,,6676.364,,,EN,2015-07-06T23:00:00.000Z
+MH_20,"Outpatient visits (per 100,000)",numeric,EUR,Europe,Country,ISR,Israel,Year,2014,true,,,,,,,,,,,,,6700,,,,,,6699.740,,,EN,2015-07-06T23:00:00.000Z
+MH_20,"Outpatient visits (per 100,000)",numeric,WPR,Western Pacific,Country,MHL,Marshall Islands,Year,2014,true,,,,,,,,,,,,,6917,,,,,,6916.809,,,EN,2015-07-06T23:00:00.000Z
+MH_20,"Outpatient visits (per 100,000)",numeric,AFR,Africa,Country,SSD,South Sudan,Year,2014,true,,,,,,,,,,,,,7.45,,,,,,7.445,,,EN,2015-07-06T23:00:00.000Z
+MH_20,"Outpatient visits (per 100,000)",numeric,AMR,Americas,Country,USA,United States of America,Year,2014,true,,,,,,,,,,,,,739.2,,,,,,739.154,,,EN,2015-07-06T23:00:00.000Z
+MH_20,"Outpatient visits (per 100,000)",numeric,EMR,Eastern Mediterranean,Country,JOR,Jordan,Year,2014,true,,,,,,,,,,,,,786.2,,,,,,786.162,,,EN,2015-07-06T23:00:00.000Z
+MH_20,"Outpatient visits (per 100,000)",numeric,AMR,Americas,Country,URY,Uruguay,Year,2014,true,,,,,,,,,,,,,8.96,,,,,,8.961,,,EN,2015-07-06T23:00:00.000Z
+MH_20,"Outpatient visits (per 100,000)",numeric,AMR,Americas,Country,CHL,Chile,Year,2014,true,,,,,,,,,,,,,8871,,,,,,8871.420,,,EN,2015-07-06T23:00:00.000Z
+MH_20,"Outpatient visits (per 100,000)",numeric,SEAR,South-East Asia,Country,NPL,Nepal,Year,2014,true,,,,,,,,,,,,,95.38,,,,,,95.382,,,EN,2015-07-06T23:00:00.000Z
+MH_20,"Outpatient visits (per 100,000)",numeric,EMR,Eastern Mediterranean,Country,QAT,Qatar,Year,2014,true,,,,,,,,,,,,,990.1,,,,,,990.070,,,EN,2015-07-06T23:00:00.000Z

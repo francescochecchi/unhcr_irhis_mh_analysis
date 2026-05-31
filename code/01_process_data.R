@@ -311,6 +311,15 @@
     
     # Reformat columns
     clinics$mmyy <- lubridate::my(clinics$mmyy)
+
+    # Aggregate to monthly data
+    x1 <- aggregate(list(fte_clinicians = clinics$fte_clinicians),
+      by = clinics[, c("country", "site", "hf", "mmyy")], FUN = mean, na.rm = T)
+    x1[which(x1$fte_clinicians == "NaN"), "fte_clinicians"] <- NA    
+    x2 <- aggregate(list(days_open = clinics$days_open),
+      by = clinics[, c("country", "site", "hf", "mmyy")], FUN = sum, na.rm = T)
+    x2[which(x2$days_open == "NaN"), "days_open"] <- NA
+    clinics <- merge(x1, x2, by = c("country", "site", "hf", "mmyy"))
     
     # Remove implausible values
     clinics$implausible <- "plausible"
@@ -321,12 +330,6 @@
       "implausible days open"
     clinics[which(clinics$days_open >= 75), "days_open"] <- NA
     cbind(table(clinics$implausible), prop.table(table(clinics$implausible)))
-    
-    # Aggregate to monthly data
-    clinics <- aggregate(clinics[, c("fte_clinicians", "days_open")],
-      by = clinics[, c("country", "site", "hf", "mmyy")], FUN = mean, na.rm = T)
-    clinics[which(clinics$fte_clinicians == "NaN"), "fte_clinicians"] <- NA    
-    clinics[which(clinics$days_open == "NaN"), "days_open"] <- NA
     
     # Aggregate to sites
     clinics <- aggregate(clinics[, c("fte_clinicians", "days_open")],

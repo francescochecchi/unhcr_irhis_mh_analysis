@@ -135,7 +135,7 @@
     # Cases per clinician FTE
     pl <- ggplot(mh3, aes(x = cases_fte)) +
       geom_histogram(alpha = 0.75, colour = "black", fill = palette_gen[15]) +
-      scale_x_continuous("FTE clinicians", expand = c(0,0)) +
+      scale_x_continuous("FTE clinicians", expand = c(0,0), limits=c(NA, 100)) +
       scale_y_continuous("number of site-months", 
         expand = expansion(add = c(0,20))) +
       theme_bw() +
@@ -284,7 +284,7 @@
       colour = region)) +
       geom_point(alpha = 0.75) +
       scale_x_continuous("daily consultations per clinician FTE", 
-        expand = expansion(add = 0.2,0), trans = "sqrt") +
+        expand = expansion(add = 0.2,0), trans = "sqrt", limits = c(NA, 100)) +
       scale_y_continuous(
         "proportion of consultations that were MHNSU-related", 
         expand = expansion(add = c(0.02,0)), trans = "sqrt", labels = percent) +
@@ -357,8 +357,8 @@
   ## Fit multivariate models
     
     # Categorise and rescale predictors
-    mh3$cases_fte_cat <- cut(mh3$cases_fte, c(0, 50, 100, 150, 200, 10000),
-      labels = c("<50", "50 to 99", "100 to 149", "150 to 199", ">= 200"),
+    mh3$cases_fte_cat <- cut(mh3$cases_fte, c(0, 10, 20, 30, 40, 10000),
+      labels = c("<10", "10 to 19", "20 to 29", "30 to 39", ">= 40"),
       include.lowest = T, right = F)
     table(mh3$cases_fte_cat, useNA = "always")
     mh3$prop_age18plus_cat <- cut(mh3$prop_age18plus, c(0, 0.4, 0.5, 0.6, 1),
@@ -480,8 +480,8 @@
     mh4$cases_fte <- mh4$n_cases_all / (mh4$fte_clinicians * mh4$days_open)
     
     # Categorise and rescale predictors
-    mh4$cases_fte_cat <- cut(mh4$cases_fte, c(0, 50, 100, 150, 200, 10000),
-      labels = c("<50", "50 to 99", "100 to 149", "150 to 199", ">= 200"),
+    mh4$cases_fte_cat <- cut(mh4$cases_fte, c(0, 10, 20, 30, 40, 10000),
+      labels = c("<10", "10 to 19", "20 to 29", "30 to 39", ">= 40"),
       include.lowest = T, right = F)
     table(mh4$cases_fte_cat, useNA = "always")
     mh4$prop_age18plus_cat <- cut(mh4$prop_age18plus, c(0, 0.4, 0.5, 0.6, 1),

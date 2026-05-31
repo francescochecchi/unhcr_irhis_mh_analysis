@@ -9,7 +9,7 @@
 
 
 #...............................................................................
-### Association of cases/clinician with rate and proportion of MH consultations
+### Association of cases/clinician with the proportion of MH consultations
 #...............................................................................
 
   #...................................      
@@ -100,21 +100,21 @@
   #...................................      
   ## Visualise variable distributions
 
-    # MH consultation rate
-    pl <- ggplot(mh3, aes(x = cons_rate_mh)) +
-      geom_histogram(alpha = 0.75, colour = "black", fill = palette_gen[10]) +
-      scale_x_continuous("MHNSU-related consultation rate",
-        trans = "sqrt", limits = c(NA, NA), breaks = c(0, 2, 5, 10, 20, 40, 
-          60, 80, 100), expand = c(0,0)) +
-      scale_y_continuous("number of site-months", 
-        expand = expansion(add = c(0,20))) +
-      theme_bw() +
-      theme(panel.grid.major.x = element_blank())
-    ggsave(paste0(dir_path, "out/03_dist_cons_rate.png"), 
-      dpi = "print", units = "cm", width = 20, height = 10*(hw-0.05))
-    
-      # remove outlier consultation rate values (n = 11 with value > 100)
-      mh3 <- subset(mh3, cons_rate_mh < 100)
+    # # MH consultation rate
+    # pl <- ggplot(mh3, aes(x = cons_rate_mh)) +
+    #   geom_histogram(alpha = 0.75, colour = "black", fill = palette_gen[10]) +
+    #   scale_x_continuous("MHNSU-related consultation rate",
+    #     trans = "sqrt", limits = c(NA, NA), breaks = c(0, 2, 5, 10, 20, 40, 
+    #       60, 80, 100), expand = c(0,0)) +
+    #   scale_y_continuous("number of site-months", 
+    #     expand = expansion(add = c(0,20))) +
+    #   theme_bw() +
+    #   theme(panel.grid.major.x = element_blank())
+    # ggsave(paste0(dir_path, "out/03_dist_cons_rate.png"), 
+    #   dpi = "print", units = "cm", width = 20, height = 10*(hw-0.05))
+    # 
+    #   # remove outlier consultation rate values (n = 11 with value > 100)
+    #   mh3 <- subset(mh3, cons_rate_mh < 100)
 
     # MH consultations proportion
     mh3$cons_prop_mh <- ifelse(mh3$n_cases_all > 0, 
@@ -203,78 +203,78 @@
     ggsave(paste0(dir_path, "out/03_dist_prop_f.png"), 
       dpi = "print", units = "cm", width = 20, height = 10*(hw-0.05))
          
-  #...................................      
-  ## Visualise univariate associations with consultation rate
-
-    # Cases per clinician FTE
-    pl <- ggplot(mh3, aes(x = cases_fte, y = cons_rate_mh, 
-      colour = region)) +
-      geom_point(alpha = 0.75) +
-      scale_x_continuous("cases  per FTE", expand = expansion(add = 0.2,0), 
-        trans = "sqrt") +
-      scale_y_continuous("MHNSU-related consultation rate", 
-        expand = expansion(add = c(0.2,0)), trans = "sqrt") +
-      scale_colour_viridis_d() +
-      theme_bw() +
-      theme(panel.grid.major.x = element_blank(), legend.position = "bottom") +
-      guides(colour = guide_legend(nrow = 2, reverse = T)) +
-      geom_smooth(colour = palette_gen[15])
-    ggsave(paste0(dir_path, "out/03_cons_rate_vs_cases_fte.png"), 
-      dpi = "print", units = "cm", width = 15, height = 10*(hw-0.05))
-    
-    # Health facility open days
-    pl <- ggplot(mh3, aes(x = days_open, y = cons_rate_mh, 
-      colour = region)) +
-      geom_point(alpha = 0.75) +
-      scale_x_continuous("health facility opening days", 
-        expand = expansion(add = 0.2,0), trans = "sqrt") +
-      scale_y_continuous("MHNSU-related consultation rate", 
-        expand = expansion(add = c(0.2,0)), trans = "sqrt") +
-      scale_colour_viridis_d() +
-      theme_bw() +
-      theme(panel.grid.major.x = element_blank(), legend.position = "bottom") +
-      guides(colour = guide_legend(nrow = 2, reverse = T)) +
-      geom_smooth(colour = palette_gen[5])
-    ggsave(paste0(dir_path, "out/03_cons_rate_vs_days_open.png"), 
-      dpi = "print", units = "cm", width = 15, height = 10*(hw-0.05))
-
-    # Psychiatrist density
-    df <- aggregate(mh3[, c("n_cases", "pop_2425")], 
-      by = mh3[, c("region", "country", "country_iso")], FUN = sum)
-    df$cons_rate_mh <- df$n_cases * 1200 / df$pop_2425
-    df <- merge(df, who[, c("country_iso", "n_psych")], by = "country_iso",
-      all.x = T)
-    pl <- ggplot(df, aes(x = n_psych, y = cons_rate_mh, 
-      colour = region)) +
-      geom_point(alpha = 0.75) +
-      scale_x_continuous("psychiatrists per 100,000 population", 
-        expand = expansion(add = 0.2,0), trans = "sqrt") +
-      scale_y_continuous("MHNSU-related consultation rate", 
-        expand = expansion(add = c(0.2,0)), trans = "sqrt") +
-      scale_colour_viridis_d() +
-      theme_bw() +
-      theme(panel.grid.major.x = element_blank(), legend.position = "bottom") +
-      guides(colour = guide_legend(nrow = 2, reverse = T)) +
-      geom_smooth(colour = palette_gen[1])
-    ggsave(paste0(dir_path, "out/03_cons_rate_vs_n_psych.png"), 
-      dpi = "print", units = "cm", width = 15, height = 10*(hw-0.05))
-  
-    # Human Development Index    
-    pl <- ggplot(mh3, aes(x = hdi, y = cons_rate_mh, 
-      colour = region)) +
-      geom_point(alpha = 0.75) +
-      scale_x_continuous("Human Development Index of host country (2023)", 
-        expand = expansion(add = 0.2,0), trans = "sqrt") +
-      scale_y_continuous("MHNSU-related consultation rate", 
-        expand = expansion(add = c(0.2,0)), trans = "sqrt") +
-      scale_colour_viridis_d() +
-      theme_bw() +
-      theme(panel.grid.major.x = element_blank(), legend.position = "bottom") +
-      guides(colour = guide_legend(nrow = 2, reverse = T)) +
-      geom_smooth(colour = palette_gen[5])
-    ggsave(paste0(dir_path, "out/03_cons_rate_vs_hdi.png"), 
-      dpi = "print", units = "cm", width = 15, height = 10*(hw-0.05))
-
+  # #...................................      
+  # ## Visualise univariate associations with consultation rate
+  # 
+  #   # Cases per clinician FTE
+  #   pl <- ggplot(mh3, aes(x = cases_fte, y = cons_rate_mh, 
+  #     colour = region)) +
+  #     geom_point(alpha = 0.75) +
+  #     scale_x_continuous("cases  per FTE", expand = expansion(add = 0.2,0), 
+  #       trans = "sqrt") +
+  #     scale_y_continuous("MHNSU-related consultation rate", 
+  #       expand = expansion(add = c(0.2,0)), trans = "sqrt") +
+  #     scale_colour_viridis_d() +
+  #     theme_bw() +
+  #     theme(panel.grid.major.x = element_blank(), legend.position = "bottom") +
+  #     guides(colour = guide_legend(nrow = 2, reverse = T)) +
+  #     geom_smooth(colour = palette_gen[15])
+  #   ggsave(paste0(dir_path, "out/03_cons_rate_vs_cases_fte.png"), 
+  #     dpi = "print", units = "cm", width = 15, height = 10*(hw-0.05))
+  #   
+  #   # Health facility open days
+  #   pl <- ggplot(mh3, aes(x = days_open, y = cons_rate_mh, 
+  #     colour = region)) +
+  #     geom_point(alpha = 0.75) +
+  #     scale_x_continuous("health facility opening days", 
+  #       expand = expansion(add = 0.2,0), trans = "sqrt") +
+  #     scale_y_continuous("MHNSU-related consultation rate", 
+  #       expand = expansion(add = c(0.2,0)), trans = "sqrt") +
+  #     scale_colour_viridis_d() +
+  #     theme_bw() +
+  #     theme(panel.grid.major.x = element_blank(), legend.position = "bottom") +
+  #     guides(colour = guide_legend(nrow = 2, reverse = T)) +
+  #     geom_smooth(colour = palette_gen[5])
+  #   ggsave(paste0(dir_path, "out/03_cons_rate_vs_days_open.png"), 
+  #     dpi = "print", units = "cm", width = 15, height = 10*(hw-0.05))
+  # 
+  #   # Psychiatrist density
+  #   df <- aggregate(mh3[, c("n_cases", "pop_2425")], 
+  #     by = mh3[, c("region", "country", "country_iso")], FUN = sum)
+  #   df$cons_rate_mh <- df$n_cases * 1200 / df$pop_2425
+  #   df <- merge(df, who[, c("country_iso", "n_psych")], by = "country_iso",
+  #     all.x = T)
+  #   pl <- ggplot(df, aes(x = n_psych, y = cons_rate_mh, 
+  #     colour = region)) +
+  #     geom_point(alpha = 0.75) +
+  #     scale_x_continuous("psychiatrists per 100,000 population", 
+  #       expand = expansion(add = 0.2,0), trans = "sqrt") +
+  #     scale_y_continuous("MHNSU-related consultation rate", 
+  #       expand = expansion(add = c(0.2,0)), trans = "sqrt") +
+  #     scale_colour_viridis_d() +
+  #     theme_bw() +
+  #     theme(panel.grid.major.x = element_blank(), legend.position = "bottom") +
+  #     guides(colour = guide_legend(nrow = 2, reverse = T)) +
+  #     geom_smooth(colour = palette_gen[1])
+  #   ggsave(paste0(dir_path, "out/03_cons_rate_vs_n_psych.png"), 
+  #     dpi = "print", units = "cm", width = 15, height = 10*(hw-0.05))
+  # 
+  #   # Human Development Index    
+  #   pl <- ggplot(mh3, aes(x = hdi, y = cons_rate_mh, 
+  #     colour = region)) +
+  #     geom_point(alpha = 0.75) +
+  #     scale_x_continuous("Human Development Index of host country (2023)", 
+  #       expand = expansion(add = 0.2,0), trans = "sqrt") +
+  #     scale_y_continuous("MHNSU-related consultation rate", 
+  #       expand = expansion(add = c(0.2,0)), trans = "sqrt") +
+  #     scale_colour_viridis_d() +
+  #     theme_bw() +
+  #     theme(panel.grid.major.x = element_blank(), legend.position = "bottom") +
+  #     guides(colour = guide_legend(nrow = 2, reverse = T)) +
+  #     geom_smooth(colour = palette_gen[5])
+  #   ggsave(paste0(dir_path, "out/03_cons_rate_vs_hdi.png"), 
+  #     dpi = "print", units = "cm", width = 15, height = 10*(hw-0.05))
+  # 
        
   #...................................      
   ## Visualise univariate associations with consultation proportion
@@ -354,7 +354,7 @@
 
     
   #...................................      
-  ## Fit multivariate exploratory models
+  ## Fit multivariate models
     
     # Categorise and rescale predictors
     mh3$cases_fte_cat <- cut(mh3$cases_fte, c(0, 50, 100, 150, 200, 10000),
@@ -377,42 +377,55 @@
     mh3$country <- as.character(mh3$country)
     mh3$site <- as.character(mh3$site)
     
-    # Fit model of consultation rate
-      
-      # GLMM
-      mcr <- glmmTMB(n_cases ~ cases_fte_cat + days_open_sc + prop_f +
-          prop_age18plus + (1  | country/site), offset = log(pop_2425), 
-        data = mh3, family = "nbinom1", ziformula = ~0)
-      summary(mcr)
-      DHARMa::plotQQunif(mcr)
-      DHARMa::plotResiduals(mcr)
-      
-      # # GLMM - zero-inflated (does not converge)
-      # mcr <- glmmTMB(n_cases ~ cases_fte_cat + days_open_sc + prop_f +
-      #     prop_age18plus + (1  | country/site), offset = log(pop_2425), 
-      #   data = mh3, family = "nbinom1", ziformula = ~1)
-      # summary(mcr)
-      # DHARMa::plotQQunif(mcr)
-      # DHARMa::plotResiduals(mcr)
-
-      # Extract model output
-      x <- parameters::model_parameters(mcr, exponentiate = T)
-      write.csv(x, paste0(dir_path, "out/03_mcr.csv"), row.names = F)
-      
+    # # Fit model of consultation rate
+    #   
+    #   # GLMM
+    #   mcr <- glmmTMB(n_cases ~ cases_fte_cat + days_open_sc + prop_f +
+    #       prop_age18plus + (1  | country/site), offset = log(pop_2425), 
+    #     data = mh3, family = "nbinom1", ziformula = ~0)
+    #   summary(mcr)
+    #   DHARMa::plotQQunif(mcr)
+    #   DHARMa::plotResiduals(mcr)
+    #   
+    #   # # GLMM - zero-inflated (does not converge)
+    #   # mcr <- glmmTMB(n_cases ~ cases_fte_cat + days_open_sc + prop_f +
+    #   #     prop_age18plus + (1  | country/site), offset = log(pop_2425), 
+    #   #   data = mh3, family = "nbinom1", ziformula = ~1)
+    #   # summary(mcr)
+    #   # DHARMa::plotQQunif(mcr)
+    #   # DHARMa::plotResiduals(mcr)
+    # 
+    #   # Extract model output
+    #   x <- parameters::model_parameters(mcr, exponentiate = T)
+    #   write.csv(x, paste0(dir_path, "out/03_mcr.csv"), row.names = F)
+    #   
     # Fit model of consultation proportion
       
-      # GLMM
+      # Crude
+      mcp <- glmmTMB(cbind(n_cases, n_cases_not_mh) ~ cases_fte_cat +
+          days_open_sc + (1  | country/site), 
+        data = mh3, family = "binomial")
+      summary(mcp)
+      DHARMa::plotQQunif(mcp)
+      DHARMa::plotResiduals(mcp)
+      x <- parameters::model_parameters(mcp, exponentiate = T)
+      write.csv(x, paste0(dir_path, "out/03_mcp_crude.csv"), row.names = F)
+      
+      # Adjusted
       mcp <- glmmTMB(cbind(n_cases, n_cases_not_mh) ~ cases_fte_cat +
           days_open_sc + prop_f + prop_age18plus_cat + (1  | country/site), 
         data = mh3, family = "binomial")
       summary(mcp)
       DHARMa::plotQQunif(mcp)
       DHARMa::plotResiduals(mcp)
-
-      # Extract model output
       x <- parameters::model_parameters(mcp, exponentiate = T)
-      write.csv(x, paste0(dir_path, "out/03_mcp.csv"), row.names = F)
+      write.csv(x, paste0(dir_path, "out/03_mcp_adjusted.csv"), row.names = F)
       
+      # Number of cases retained
+      df <- mh3[complete.cases(mh3[, c("n_cases", "n_cases_not_mh",
+        "cases_fte_cat", "days_open_sc", "prop_f", "prop_age18plus_cat",
+        "country", "site")]), ]
+      sum(df$n_cases)
       
 #...............................................................................
 ### ### Association of cases/clinician with cause of MH consultations
@@ -499,7 +512,6 @@
     mh4$cat2 <- relevel(mh4$cat2, "Epilepsy or seizures")
     
 
-    
   #...................................      
   ## Visualise univariate correlation between predictors and category share
 
@@ -621,17 +633,30 @@
   #...................................      
   ## Fit multivariate model
     
-    # Fit model of consultation proportion (method of weights - checked, OK!)
+    # Crude association (method of weights - checked, OK!)
         # nested random effects require too much computational power, so
         # just kept country
+    mcp <- mblogit(cat2 ~ cases_fte_cat + days_open_sc, data = mh4, 
+      weights = n_cases, random = ~1|country)
+    x <- mtable(mcp, coef.style = "horizontal", summary.stats = 
+        c("N", "AIC", "Deviance"))
+    x$mcp$coef[,1,] <- exp(x$mcp$coef[,1,])
+    write_html(x, paste0(dir_path, "out/03_mblogit_cat2_crude.html"))
+
+    # Adjusted association (method of weights - checked, OK!)
     mcp <- mblogit(cat2 ~ cases_fte_cat + days_open_sc + prop_age18plus_cat +
       prop_f_cat + cons_rate_mh, data = mh4, weights = n_cases, 
       random = ~1|country)
     x <- mtable(mcp, coef.style = "horizontal", summary.stats = 
         c("N", "AIC", "Deviance"))
     x$mcp$coef[,1,] <- exp(x$mcp$coef[,1,])
-    write_html(x, paste0(dir_path, "out/03_mblogit_cat2.html"))
-
+    write_html(x, paste0(dir_path, "out/03_mblogit_cat2_adjusted.html"))
+    
+    # Number of cases retained
+    df <- mh4[complete.cases(mh4[, c("n_cases", "cat2",
+      "cases_fte_cat", "days_open_sc", "prop_f_cat", "prop_age18plus_cat",
+      "country", "cons_rate_mh")]), ]
+    sum(df$n_cases)
 
   # #...................................      
   # ## Draw conceptual diagram for discussion

@@ -164,7 +164,7 @@
     df[which(df$region == "all"), "n_sites"] <- sum(na.omit(df$n_sites))
     
     # Save
-    write.csv(df, paste0(dir_path, "out/tab_avail.csv"), row.names = F)    
+    write.csv(df, paste0(dir_path, "out/02_tab_avail.csv"), row.names = F)    
     
     # How many health facilities?
     hfs <- merge(hfs, unique(mh1[, c("country", "site")]), 

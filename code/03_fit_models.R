@@ -403,7 +403,7 @@
       
       # Crude
       mcp <- glmmTMB(cbind(n_cases, n_cases_not_mh) ~ cases_fte_cat +
-          days_open_sc + (1  | country/site), 
+        (1  | country/site), 
         data = mh3, family = "binomial")
       summary(mcp)
       DHARMa::plotQQunif(mcp)
@@ -636,7 +636,7 @@
     # Crude association (method of weights - checked, OK!)
         # nested random effects require too much computational power, so
         # just kept country
-    mcp <- mblogit(cat2 ~ cases_fte_cat + days_open_sc, data = mh4, 
+    mcp <- mblogit(cat2 ~ cases_fte_cat, data = mh4, 
       weights = n_cases, random = ~1|country)
     x <- mtable(mcp, coef.style = "horizontal", summary.stats = 
         c("N", "AIC", "Deviance"))
@@ -658,6 +658,7 @@
       "country", "cons_rate_mh")]), ]
     sum(df$n_cases)
 
+    
   # #...................................      
   # ## Draw conceptual diagram for discussion
   #   

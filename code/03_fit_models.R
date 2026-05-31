@@ -283,8 +283,8 @@
     pl <- ggplot(mh3, aes(x = cases_fte, y = cons_prop_mh, 
       colour = region)) +
       geom_point(alpha = 0.75) +
-      scale_x_continuous("clinician FTEs", expand = expansion(add = 0.2,0), 
-        trans = "sqrt") +
+      scale_x_continuous("daily consultations per clinician FTE", 
+        expand = expansion(add = 0.2,0), trans = "sqrt") +
       scale_y_continuous(
         "proportion of consultations that were MHNSU-related", 
         expand = expansion(add = c(0.02,0)), trans = "sqrt", labels = percent) +
@@ -524,7 +524,7 @@
       geom_bar(stat = "identity", position = "fill", colour = "black",
         linewidth = 0.5) +
       theme_bw() +
-      scale_x_discrete("Daily consultations per clinician FTE",
+      scale_x_discrete("daily consultations per clinician FTE",
         expand = c(0,0)) +
       scale_y_continuous("proportion of all MHNSU-related consultations",
         labels = percent, breaks = seq(0, 1, 0.2), expand = c(0,0)) +
@@ -562,7 +562,7 @@
       geom_bar(stat = "identity", position = "fill", colour = "black",
         linewidth = 0.5) +
       theme_bw() +
-      scale_x_discrete("Proportion of the population aged >= 18 yo",
+      scale_x_discrete("proportion of the population aged >= 18 yo",
         expand = c(0,0)) +
       scale_y_continuous("proportion of all MHNSU-related consultations",
         labels = percent, breaks = seq(0, 1, 0.2), expand = c(0,0)) +
@@ -581,7 +581,7 @@
       geom_bar(stat = "identity", position = "fill", colour = "black",
         linewidth = 0.5) +
       theme_bw() +
-      scale_x_discrete("Proportion of the population who is female",
+      scale_x_discrete("proportion of the population who is female",
         expand = c(0,0)) +
       scale_y_continuous("proportion of all MHNSU-related consultations",
         labels = percent, breaks = seq(0, 1, 0.2), expand = c(0,0)) +
